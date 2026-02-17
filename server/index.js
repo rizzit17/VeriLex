@@ -13,14 +13,16 @@ const BODY_LIMIT = "1mb"; // JSON/form bodies only — files go through multer
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 
+// Debug logging for CORS
+app.use((req, res, next) => {
+  console.log(`[Request] ${req.method} ${req.path} | Origin: ${req.headers.origin}`);
+  next();
+});
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",  // Local development
-      "https://verilex.vercel.app",  // Vercel production
-      "https://verilex-git-main-rizzit17s-projects.vercel.app"  // Vercel preview
-    ],
-    methods: ["GET", "POST"],
+    origin: "*", // Temporarily allow all origins for debugging
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -36,6 +38,14 @@ app.use((req, _res, next) => {
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+
+app.get("/", (_req, res) => {
+  res.json({
+    message: "VeriLex API is running",
+    status: "ok",
+    docs: "/api/docs"
+  });
+});
 
 app.use("/api", uploadRouter);
 
