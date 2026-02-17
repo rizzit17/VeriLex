@@ -12,7 +12,10 @@ import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { useHistory } from "./hooks/useHistory";
 
-const API_URL = "http://localhost:3000/api/upload";
+// Environment-aware API URL
+const API_URL = import.meta.env.PROD
+  ? "https://verilex-production.up.railway.app/api/upload"  // Railway backend
+  : "http://localhost:3000/api/upload";  // Development
 
 
 const getGlobalStyles = (theme) => `

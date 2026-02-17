@@ -15,7 +15,11 @@ const BODY_LIMIT = "1mb"; // JSON/form bodies only — files go through multer
 
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGIN || "*",
+    origin: [
+      "http://localhost:5173",  // Local development
+      "https://verilex.vercel.app",  // Vercel production
+      "https://verilex-git-main-rizzit17s-projects.vercel.app"  // Vercel preview
+    ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -89,10 +93,13 @@ process.on("uncaughtException", (err) => {
   setTimeout(() => process.exit(1), 500);
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Start (development only) ──────────────────────────────────────────────────
+// In production (Vercel), the app is exported and used by serverless functions
 
-app.listen(PORT, () => {
-  console.log(`Legal Document Analyzer running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Legal Document Analyzer running on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
