@@ -6,11 +6,11 @@ if (!process.env.GEMINI_API_KEY) {
   throw new Error("Missing required environment variable: GEMINI_API_KEY");
 }
 
-// The client gets the API key from the environment variable automatically
-const ai = new GoogleGenAI({});
+// The client gets the API key from the environment variable explicitly
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MODEL = "gemini-3-flash-preview";
-const MAX_TOKENS = 2048;
+const MODEL = "gemini-1.5-flash";
+const MAX_TOKENS = 8192;
 
 // ── Safe fallback ─────────────────────────────────────────────────────────────
 // Returned on any failure — analyzeDocument never throws to the caller.
