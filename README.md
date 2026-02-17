@@ -1,228 +1,153 @@
-# VeriLex - AI-Powered Legal Document Analysis
+# ⚖️ VeriLex - AI-Powered Legal Document Analyzer
 
-![VeriLex Logo](https://img.shields.io/badge/VeriLex-Legal%20AI-d4a574?style=for-the-badge)
-![License](https://img.shields.io/badge/license-MIT-b8860b?style=for-the-badge)
+<div align="center">
 
-**VeriLex** is a sophisticated AI-powered legal document analysis platform designed for legal professionals. It provides intelligent contract review, risk assessment, and compliance analysis with a premium brown/gold legal aesthetic.
+![VeriLex Logo](https://img.shields.io/badge/VeriLex-Legal%20AI-d4a574?style=for-the-badge&logo=scale-of-justice&logoColor=white)
+<br/>
+
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)](https://expressjs.com/)
+[![Gemini AI](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
+<br/>
+[![Deployed on Vercel](https://img.shields.io/badge/Frontend-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://verilex.vercel.app)
+[![Deployed on Railway](https://img.shields.io/badge/Backend-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+
+<h3>
+  <a href="https://verilex.vercel.app">🌐 Live Demo</a>
+  <span> | </span>
+  <a href="#-features">✨ Features</a>
+  <span> | </span>
+  <a href="#-getting-started">🚀 Getting Started</a>
+</h3>
+
+*An intelligent platform for legal professionals to analyze contracts, assess risks, and ensure compliance using advanced AI.*
+
+</div>
+
+---
+
+## 📖 Overview
+
+**VeriLex** is a sophisticated legal-tech application that leverages Google's **Gemini AI** to analyze legal documents (PDFs) in real-time. Designed with a premium aesthetic inspired by law libraries and executive boardrooms, it offers instant insights into contracts, identifying varying levels of risk, key obligations, and missing clauses.
+
+The application features a modern, responsive dashboard with a dual-theme interface (Dark/Light) that maintains a professional "Legal Gold" identity across both modes.
 
 ## ✨ Features
 
-### 🔍 **AI Document Analysis**
-- Intelligent PDF contract review using Google's Gemini AI
-- Automatic clause identification and categorization
-- Risk level assessment (High, Medium, Low)
-- Key obligations extraction
-- Compliance recommendations
+### 🧠 **AI-Powered Analysis**
+*   **Instant Risk Assessment**: Categorizes clauses into High, Medium, and Low risk.
+*   **Clause Identification**: Automatically detects and labels standard legal clauses (Indemnification, Termination, Liability, etc.).
+*   **Summary Generation**: Creates concise executive summaries of complex documents.
+*   **Compliance Check**: Identifies missing standard clauses and potential loopholes.
 
-### 📊 **Dashboard & Analytics**
-- Real-time document analysis overview
-- Risk distribution visualization
-- Recent documents tracking
-- Activity feed with timeline
-- Document history management
+### 🎨 **Premium User Experience**
+*   **Sophisticated UI**: "Legal Gold" and "Deep Espresso" color palette for an authoritative feel.
+*   **Interactive Dashboard**: Real-time stats, activity feeds, and risk distribution charts.
+*   **Theme Support**: Toggle between a rich **Dark Mode** and a parchment-inspired **Light Mode**.
+*   **Responsive Design**: Fully optimized for desktop and tablet viewing.
 
-### 🎨 **Premium UI/UX**
-- Elegant brown/gold legal aesthetic
-- Light/dark theme toggle
-- Parchment texture background
-- Smooth animations and transitions
-- Intro landing page with branding
-- Responsive design
+### 🛠️ **Technical Highlights**
+*   **Secure Uploads**: Multer-based memory storage for secure and fast file processing.
+*   **Real-time Feedback**: Loading states, skeletal screens, and toast notifications.
+*   **History Tracking**: session-based history of analyzed documents.
 
-### 🔐 **Security**
-- Secure API key management
-- Environment variable configuration
-- Session-based intro display
+## 🏗️ Tech Stack
 
-## 🚀 Quick Start
+### **Frontend**
+*   **Framework**: React (v19) with Vite
+*   **Styling**: Customized CSS variables, Flexbox/Grid layouts
+*   **State Management**: React Hooks (`useState`, `useEffect`, `useContext`)
+*   **Routing**: Custom navigation logic
+
+### **Backend**
+*   **Runtime**: Node.js
+*   **Framework**: Express.js
+*   **AI Integration**: Google Generative AI (Gemini 1.5 Flash)
+*   **PDF Processing**: `pdf-parse` / `pdfjs-dist`
+*   **Security**: CORS, Helmet-style headers, Input validation
+
+### **Deployment**
+*   **Frontend**: Vercel (CD from GitHub)
+*   **Backend**: Railway (Continuous Deployment)
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- **Node.js** (v16 or higher)
-- **npm** or **yarn**
-- **Google Gemini API Key** ([Get one here](https://makersuite.google.com/app/apikey))
+*   Node.js (v18+)
+*   npm or yarn
+*   A Google Cloud Project with Gateway/Gemini API access
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/verilex.git
-   cd verilex
-   ```
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/rizzit17/VeriLex.git
+    cd VeriLex
+    ```
 
-2. **Install root dependencies**
-   ```bash
-   npm install
-   ```
+2.  **Install Frontend Dependencies**
+    ```bash
+    cd client
+    npm install
+    ```
 
-3. **Install server dependencies**
-   ```bash
-   cd server
-   npm install
-   ```
+3.  **Install Backend Dependencies**
+    ```bash
+    cd ../server
+    npm install
+    ```
 
-4. **Install client dependencies**
-   ```bash
-   cd ../client
-   npm install
-   ```
+4.  **Configure Environment Variables**
+    Create a `.env` file in the `server` directory:
+    ```env
+    PORT=3000
+    GEMINI_API_KEY=your_google_gemini_api_key
+    NODE_ENV=development
+    ```
 
-5. **Set up environment variables**
-   ```bash
-   cd ../server
-   cp .env.example .env
-   ```
-   
-   Edit `server/.env` and add your Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_actual_api_key_here
-   PORT=3000
-   ```
+### Running Locally
 
-### Running the Application
+1.  **Start the Backend Server**
+    ```bash
+    # In terminal 1 (server directory)
+    npm start
+    ```
 
-1. **Start the server** (from `server/` directory):
-   ```bash
-   npm start
-   ```
-   Server will run on `http://localhost:3000`
+2.  **Start the Frontend Client**
+    ```bash
+    # In terminal 2 (client directory)
+    npm run dev
+    ```
 
-2. **Start the client** (from `client/` directory, in a new terminal):
-   ```bash
-   npm run dev
-   ```
-   Client will run on `http://localhost:5173`
+3.  Access the app at `http://localhost:5173`
 
-3. **Open your browser** and navigate to:
-   ```
-   http://localhost:5173
-   ```
+## 📸 Screenshots
 
-## 📁 Project Structure
-
-```
-verilex/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── components/    # UI components
-│   │   ├── pages/         # Page components
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── utils/         # Utility functions
-│   │   └── App.jsx        # Main app component
-│   └── package.json
-│
-├── server/                # Express backend
-│   ├── routes/           # API routes
-│   ├── services/         # Business logic
-│   ├── utils/            # Helper functions
-│   ├── data/             # Data storage
-│   ├── .env.example      # Environment template
-│   └── index.js          # Server entry point
-│
-└── package.json          # Root package.json
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `server/.env` file with the following variables:
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `GEMINI_API_KEY` | Your Google Gemini API key | ✅ Yes |
-| `PORT` | Server port (default: 3000) | ❌ No |
-
-### Theme Configuration
-
-The application supports both light and dark themes:
-- **Dark Mode**: Deep brown backgrounds with gold accents (default)
-- **Light Mode**: Parchment cream backgrounds with brown text
-- Toggle using the sun/moon button in the top-right corner
-- Preference is saved to `localStorage`
-
-## 🎯 Usage
-
-1. **Upload a Document**
-   - Click the "Upload Document" button (gold gradient)
-   - Select a PDF contract or legal document
-   - Wait for AI analysis to complete
-
-2. **View Analysis**
-   - Click on any document in the "Recent Documents" list
-   - Review identified clauses, obligations, and risks
-   - Check compliance recommendations
-
-3. **Navigate Pages**
-   - **Dashboard**: Overview and recent activity
-   - **Documents**: Full document list with search
-   - **Analytics**: Risk breakdown and metrics
-   - **Reports**: Generate analysis reports
-   - **Settings**: Configure preferences
-
-4. **Toggle Theme**
-   - Click the sun/moon icon in the top-right
-   - Switch between dark and light modes
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **React** - UI library
-- **Vite** - Build tool and dev server
-- **Axios** - HTTP client
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express** - Web framework
-- **Multer** - File upload handling
-- **PDF-Parse** - PDF text extraction
-- **Google Generative AI** - Gemini AI integration
-
-### Styling
-- **Vanilla CSS** - Custom styling
-- **Google Fonts** - Playfair Display & Inter
-
-## 📝 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/upload` | Upload and analyze PDF document |
-| `GET` | `/api/history` | Get analysis history |
-
-## 🎨 Design Philosophy
-
-VeriLex embodies a **premium legal-tech aesthetic**:
-
-- **Color Palette**: Warm browns and rich golds
-- **Typography**: Playfair Display (serif) + Inter (sans-serif)
-- **Texture**: Subtle parchment overlay
-- **Mood**: Sophisticated, trustworthy, authoritative
-- **Inspiration**: Law libraries, executive boardrooms, legal documents
+| Dashboard (Dark Mode) | Analysis Result |
+|:---:|:---:|
+| <div style="width: 400px; height: 250px; background: #1a1410; display: flex; align-items: center; justify-content: center; color: #d4a574; border: 1px solid #4a3728;">Add Screenshot Here</div> | <div style="width: 400px; height: 250px; background: #faf7f2; display: flex; align-items: center; justify-content: center; color: #6b5d52; border: 1px solid #c4b59a;">Add Screenshot Here</div> |
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1.  Fork the project
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- **Google Gemini AI** for powerful document analysis
-- **React** and **Vite** for excellent developer experience
-- Legal professionals for inspiration and feedback
-
-## 📧 Contact
-
-For questions or support, please open an issue on GitHub.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built with ⚖️ by the VeriLex Team**
+<div align="center">
+
+**Built with ⚖️ by [Rishit](https://github.com/rizzit17)**
+
+</div>
