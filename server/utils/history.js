@@ -1,50 +1,10 @@
-import { promises as fs } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+// ── In-Memory History Storage ─────────────────────────────────────────────────
+// Note: On Railway/Vercel, file systems are ephemeral. 
+// We use in-memory storage for the demo. For production persistence, use MongoDB/PostgreSQL.
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const HISTORY_FILE = join(__dirname, "../data/history.json");
-
-// ── Ensure data directory exists ──────────────────────────────────────────────
-
-async function ensureDataDir() {
-    const dir = dirname(HISTORY_FILE);
-    try {
-        await fs.mkdir(dir, { recursive: true });
-    } catch (err) {
-        if (err.code !== "EEXIST") throw err;
-    }
-}
-
-// ── Read history from file ────────────────────────────────────────────────────
-
-async function readHistory() {
-    await ensureDataDir();
-    try {
-        const data = await fs.readFile(HISTORY_FILE, "utf8");
-        return JSON.parse(data);
-    } catch (err) {
-        if (err.code === "ENOENT") {
-            // File doesn't exist yet — initialize with empty array
-            await fs.writeFile(HISTORY_FILE, "[]", "utf8");
-            return [];
-        }
-        throw err;
-    }
-}
-
-// ── Write history to file ─────────────────────────────────────────────────────
-
-async function writeHistory(history) {
-    await ensureDataDir();
-    await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), "utf8");
-}
-
-// ── Add new entry to history ──────────────────────────────────────────────────
+let memoryHistory = [];
 
 export async function addHistoryEntry(fileData, analysisData) {
-    const history = await readHistory();
-
     const entry = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         timestamp: new Date().toISOString(),
@@ -56,15 +16,17 @@ export async function addHistoryEntry(fileData, analysisData) {
         analysis: analysisData,
     };
 
-    history.unshift(entry); // Add to beginning (newest first)
-    await writeHistory(history);
+    memoryHistory.unshift(entry); // Add to beginning (newest first)
+
+    // Optional limits to prevent memory overflow
+    if (memoryHistory.length > 50) {
+        memoryHistory = memoryHistory.slice(0, 50);
+    }
 
     return entry;
 }
 
-// ── Get all history entries ───────────────────────────────────────────────────
-
 export async function getAllHistory() {
-    const history = await readHistory();
-    return history; // Already sorted newest-first from addHistoryEntry
+    return memoryHistory;
 }
+
