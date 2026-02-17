@@ -93,10 +93,11 @@ process.on("uncaughtException", (err) => {
   setTimeout(() => process.exit(1), 500);
 });
 
-// ── Start (development only) ──────────────────────────────────────────────────
-// In production (Vercel), the app is exported and used by serverless functions
+// ── Start ─────────────────────────────────────────────────────────────────────
+// Vercel serverless functions export the app, but Railway needs to listen.
+// We check if we are NOT in Vercel environment to start listening.
 
-if (process.env.NODE_ENV !== 'production') {
+if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Legal Document Analyzer running on http://localhost:${PORT}`);
   });
