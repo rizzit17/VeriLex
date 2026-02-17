@@ -1,0 +1,59 @@
+/* Tailwind directives — must be at the top */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Font — Inter */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* ── Base resets ─────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold leading-tight;
+  }
+}
+
+/* ── Reusable component classes ──────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-primary-600 hover:bg-primary-700 active:bg-primary-900
+           text-white font-semibold text-sm
+           px-5 py-2.5 rounded-lg
+           transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+  }
+
+  .badge-high   { @apply inline-block px-2 py-0.5 rounded text-xs font-semibold bg-red-100    text-red-700; }
+  .badge-medium { @apply inline-block px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-700; }
+  .badge-low    { @apply inline-block px-2 py-0.5 rounded text-xs font-semibold bg-green-100  text-green-700; }
+}
+
+/* ── Utility extras ──────────────────────────────────────────────────────── */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
