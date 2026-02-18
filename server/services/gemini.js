@@ -175,24 +175,40 @@ export async function analyzeDocument(documentText) {
     return { ...SAFE_FALLBACK };
   }
 
-  const truncated = documentText.slice(0, 90_000);
-  const prompt = `${SYSTEM_PROMPT}\n\nPlease analyze the following legal document and return ONLY the JSON object. Do not include anything outside the JSON.\n\n---\n\n${truncated}`;
+  const truncated = documentText.slice(0, 60_000); // Reduced to avoid token limits
+
+  const prompt = `You are a legal document analyzer. Analyze the following legal document and return ONLY a valid JSON object with NO markdown, NO code fences, NO extra text.
+
+The JSON must have exactly these keys:
+- "summary": string (2-3 sentences describing the document)
+- "key_obligations": array of strings (duties for each party)
+- "risky_clauses": array of objects with "clause" (string), "risk_level" ("HIGH"/"MEDIUM"/"LOW"), "reason" (string)
+- "missing_clauses": array of strings (standard clauses that are absent)
+- "suggestions": array of strings (2-5 observations for legal counsel)
+
+DOCUMENT TO ANALYZE:
+---
+${truncated}
+---
+
+Return ONLY the JSON object, nothing else.`;
 
   // ── API call ────────────────────────────────────────────────────────────────
   let result;
   try {
-    console.log(`[analyzeDocument] Calling Gemini ${MODEL} with ${truncated.length} chars...`);
+    console.log(`[analyzeDocument] Calling Gemini with ${truncated.length} chars...`);
     const model = genAI.getGenerativeModel({
       model: MODEL,
       generationConfig: {
         maxOutputTokens: MAX_TOKENS,
-        temperature: 0,
-        responseMimeType: "application/json",
+        temperature: 0.1,
       },
     });
     result = await model.generateContent(prompt);
+    console.log("[analyzeDocument] API call succeeded");
   } catch (err) {
-    console.error("[analyzeDocument] Gemini API error:", err.message ?? err);
+    console.error("[analyzeDocument] Gemini API FAILED:", err.message ?? err);
+    console.error("[analyzeDocument] Error details:", JSON.stringify(err, null, 2));
     return { ...SAFE_FALLBACK };
   }
 
@@ -200,32 +216,34 @@ export async function analyzeDocument(documentText) {
   let rawText;
   try {
     rawText = result.response.text().trim();
+    console.log(`[analyzeDocument] Got response: ${rawText.length} chars`);
+    console.log(`[analyzeDocument] Preview: ${rawText.slice(0, 150)}`);
   } catch (err) {
-    console.error("[analyzeDocument] Failed to extract text from response:", err.message);
+    console.error("[analyzeDocument] Failed to get text from response:", err.message);
+    console.error("[analyzeDocument] Response object:", JSON.stringify(result?.response, null, 2));
     return { ...SAFE_FALLBACK };
   }
 
-  console.log(`[analyzeDocument] Response length: ${rawText.length}, preview: ${rawText.slice(0, 80)}`);
-
   if (!rawText) {
-    console.error("[analyzeDocument] Gemini returned an empty response.");
+    console.error("[analyzeDocument] Empty response from Gemini");
     return { ...SAFE_FALLBACK };
   }
 
   // ── Parse JSON ──────────────────────────────────────────────────────────────
   const parsed = extractJSON(rawText);
   if (!parsed) {
-    console.error("[analyzeDocument] JSON extraction failed. Raw:", rawText.slice(0, 300));
+    console.error("[analyzeDocument] JSON parse FAILED. Full raw response:", rawText);
     return { ...SAFE_FALLBACK };
   }
 
   // ── Validate & normalize ────────────────────────────────────────────────────
   try {
     const normalized = validateAndNormalize(parsed);
-    console.log("[analyzeDocument] Success! Keys:", Object.keys(normalized));
+    console.log("[analyzeDocument] SUCCESS! Keys:", Object.keys(normalized));
     return normalized;
   } catch (err) {
-    console.error("[analyzeDocument] Schema validation failed:", err.message);
+    console.error("[analyzeDocument] Validation FAILED:", err.message);
+    console.error("[analyzeDocument] Parsed object:", JSON.stringify(parsed, null, 2));
     return { ...SAFE_FALLBACK };
   }
 }
