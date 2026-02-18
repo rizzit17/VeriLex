@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/history";
+// Environment-aware history API URL
+const HISTORY_API_URL = import.meta.env.PROD
+    ? "https://verilex-production.up.railway.app/api/history"
+    : "http://localhost:3000/api/history";
 
 export function useHistory() {
     const [history, setHistory] = useState([]);
@@ -12,7 +15,7 @@ export function useHistory() {
         setLoading(true);
         setError(null);
         try {
-            const { data } = await axios.get(API_URL);
+            const { data } = await axios.get(HISTORY_API_URL);
             if (data.success) {
                 setHistory(data.history || []);
             } else {

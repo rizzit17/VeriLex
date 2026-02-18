@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // ── Client setup ──────────────────────────────────────────────────────────────
 
@@ -6,14 +6,12 @@ if (!process.env.GEMINI_API_KEY) {
   throw new Error("Missing required environment variable: GEMINI_API_KEY");
 }
 
-// The client gets the API key from the environment variable explicitly
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const MODEL = "gemini-1.5-flash";
 const MAX_TOKENS = 8192;
 
 // ── Safe fallback ─────────────────────────────────────────────────────────────
-// Returned on any failure — analyzeDocument never throws to the caller.
 
 const SAFE_FALLBACK = {
   summary: "Analysis could not be completed. Please retry or consult a qualified legal professional.",
@@ -31,14 +29,8 @@ const SYSTEM_PROMPT = `You are a careful legal document reviewer trained to iden
 
 Your task is to analyze the provided contract text and return a structured JSON summary. Follow these instructions precisely.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT FORMAT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Return ONLY a single raw JSON object. Do not include:
-- Markdown code fences (\`\`\`json or \`\`\`)
-- Prose explanations before or after the JSON
-- Comments inside the JSON
-- Any text outside the JSON object
+Return ONLY a single raw JSON object. Do not include markdown code fences, prose explanations, or any text outside the JSON object.
 
 Required schema (all keys mandatory, arrays may be empty):
 {
@@ -55,54 +47,27 @@ Required schema (all keys mandatory, arrays may be empty):
   "suggestions": ["<string>", ...]
 }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FIELD INSTRUCTIONS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-summary
-- 2–3 sentences in plain English describing the document type, its main purpose, and the parties involved.
-- Neutral, factual tone. Do not characterize the document as "good", "bad", or "risky".
+summary: 2-3 sentences in plain English describing the document type, its main purpose, and the parties involved. Neutral, factual tone.
 
-key_obligations
-- List the primary duties explicitly stated in the document for each party.
-- Use plain language. Begin each item with the responsible party, e.g. "Client must...", "Service Provider shall...".
-- Include payment terms, delivery deadlines, confidentiality duties, and notice requirements if present.
-- Do not infer obligations not stated in the document.
+key_obligations: List the primary duties explicitly stated in the document for each party. Use plain language. Begin each item with the responsible party, e.g. "Client must...", "Service Provider shall...".
 
-risky_clauses
-- Only flag clauses that present a materially unusual, one-sided, or potentially harmful term compared to standard commercial contracts.
-- Apply a CONSERVATIVE threshold. Do not flag routine clauses merely because they exist.
-- For each flagged clause:
-    clause:      Quote or closely paraphrase the relevant text.
-    risk_level:  HIGH, MEDIUM, or LOW only.
-    reason:      1–2 sentences explaining why this clause may warrant attention. Neutral, informational tone only.
+risky_clauses: Only flag clauses that present a materially unusual, one-sided, or potentially harmful term compared to standard commercial contracts.
+- HIGH: Highly unusual or severely one-sided; could expose a party to significant unexpected liability.
+- MEDIUM: Meaningful deviation from standard practice; may disadvantage one party but is not extreme.
+- LOW: Slightly unusual or worth noting; common in some industries.
 
-Risk level criteria (be conservative — when in doubt, use a lower level):
-  HIGH   — Highly unusual or severely one-sided; could expose a party to significant unexpected liability.
-  MEDIUM — Meaningful deviation from standard practice; may disadvantage one party but is not extreme.
-  LOW    — Slightly unusual or worth noting; common in some industries and unlikely to cause significant harm alone.
+missing_clauses: List standard clause types absent from this document and commonly expected in contracts of this type.
 
-missing_clauses
-- List standard clause types absent from this document and commonly expected in contracts of this type.
-- Only include genuinely missing protections, not clauses that are merely implied.
+suggestions: 2-5 neutral, informational observations a reader may wish to discuss with legal counsel. Use language like "It may be worth clarifying...", "A party may wish to consider..."
 
-suggestions
-- 2–5 neutral, informational observations a reader may wish to discuss with legal counsel.
-- Use language like: "It may be worth clarifying...", "A party may wish to consider...", "Legal counsel could review whether..."
-- Do NOT instruct the reader to sign, reject, modify, or take any specific legal action.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CONSTRAINTS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - This output is for informational purposes only and does not constitute legal advice.
-- Do not speculate about intent, motives, or likely outcomes of any clause.
-- Do not reference laws or statutes by name unless explicitly cited in the document.
-- If the document is too short or clearly not a legal contract, return the schema with empty arrays and a summary noting the document could not be analyzed.
-- risk_level values must be exactly: HIGH, MEDIUM, or LOW (uppercase).`;
+- risk_level values must be exactly: HIGH, MEDIUM, or LOW (uppercase).
+- If the document is too short or clearly not a legal contract, return the schema with empty arrays and a summary noting the document could not be analyzed.`;
 
 // ── JSON extraction ───────────────────────────────────────────────────────────
-// Four-layer fallback — handles raw JSON, fenced JSON, embedded JSON,
-// and truncated responses cut off mid-object.
 
 function extractJSON(raw) {
   if (!raw || typeof raw !== "string") return null;
@@ -111,7 +76,7 @@ function extractJSON(raw) {
     try { return JSON.parse(str); } catch { return null; }
   };
 
-  // 1. Direct parse (ideal — Gemini with responseMimeType JSON usually hits this)
+  // 1. Direct parse
   const direct = attempt(raw);
   if (direct) return direct;
 
@@ -129,7 +94,7 @@ function extractJSON(raw) {
     if (braced) return braced;
   }
 
-  // 4. Trim to last closing brace (handles token-limit truncation mid-response)
+  // 4. Trim to last closing brace
   const lastBrace = raw.lastIndexOf("}");
   if (lastBrace > 0) {
     const trimmed = attempt(raw.slice(0, lastBrace + 1));
@@ -140,7 +105,6 @@ function extractJSON(raw) {
 }
 
 // ── Schema validation & normalisation ─────────────────────────────────────────
-// Validates structure AND coerces minor deviations rather than hard-failing.
 
 const VALID_RISK_LEVELS = new Set(["HIGH", "MEDIUM", "LOW"]);
 
@@ -149,21 +113,21 @@ function validateAndNormalize(obj) {
     throw new Error("Root value is not a plain object.");
   }
 
-  // summary — coerce to string if possible
+  // summary
   if (typeof obj.summary !== "string") {
     if (obj.summary != null) obj.summary = String(obj.summary);
     else throw new Error("Missing required field: summary");
   }
   obj.summary = obj.summary.trim();
 
-  // Array fields — coerce null/undefined to []
+  // Array fields
   for (const field of ["key_obligations", "risky_clauses", "missing_clauses", "suggestions"]) {
     if (!Array.isArray(obj[field])) {
-      obj[field] = obj[field] != null ? [] : [];
+      obj[field] = [];
     }
   }
 
-  // Normalise string arrays — drop non-string items
+  // Normalise string arrays
   for (const field of ["key_obligations", "missing_clauses", "suggestions"]) {
     obj[field] = obj[field]
       .filter((item) => item != null)
@@ -171,7 +135,7 @@ function validateAndNormalize(obj) {
       .filter((item) => item.length > 0);
   }
 
-  // Validate and normalise risky_clauses items
+  // Validate risky_clauses
   obj.risky_clauses = obj.risky_clauses
     .filter((item) => item != null && typeof item === "object")
     .map((item, i) => {
@@ -205,47 +169,43 @@ function validateAndNormalize(obj) {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-/**
- * Analyze a legal document using the Gemini API.
- * Drop-in replacement for the Claude analyzeDocument export —
- * identical function name, parameters, and return shape.
- *
- * @param {string} documentText  Extracted plain text from the PDF.
- * @returns {Promise<object>}    Validated, normalized analysis object.
- *                               Never throws — returns SAFE_FALLBACK on any failure.
- */
 export async function analyzeDocument(documentText) {
-  // Guard: bad input
   if (!documentText || typeof documentText !== "string" || documentText.trim().length < 20) {
     console.warn("[analyzeDocument] Invalid or empty documentText — returning fallback.");
     return { ...SAFE_FALLBACK };
   }
 
-  // Stay inside Gemini's context window; leave room for system prompt + output
   const truncated = documentText.slice(0, 90_000);
-
-  const userMessage = `Please analyze the following legal document and return the JSON object described in your instructions. Do not include anything outside the JSON.\n\n---\n\n${truncated}`;
+  const prompt = `${SYSTEM_PROMPT}\n\nPlease analyze the following legal document and return ONLY the JSON object. Do not include anything outside the JSON.\n\n---\n\n${truncated}`;
 
   // ── API call ────────────────────────────────────────────────────────────────
-  let response;
+  let result;
   try {
-    response = await ai.models.generateContent({
+    console.log(`[analyzeDocument] Calling Gemini ${MODEL} with ${truncated.length} chars...`);
+    const model = genAI.getGenerativeModel({
       model: MODEL,
-      contents: userMessage,
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
+      generationConfig: {
         maxOutputTokens: MAX_TOKENS,
         temperature: 0,
         responseMimeType: "application/json",
       },
     });
+    result = await model.generateContent(prompt);
   } catch (err) {
-    console.error("[analyzeDocument] Gemini API error:", err.message);
+    console.error("[analyzeDocument] Gemini API error:", err.message ?? err);
     return { ...SAFE_FALLBACK };
   }
 
   // ── Extract raw text ────────────────────────────────────────────────────────
-  const rawText = (response.text ?? "").trim();
+  let rawText;
+  try {
+    rawText = result.response.text().trim();
+  } catch (err) {
+    console.error("[analyzeDocument] Failed to extract text from response:", err.message);
+    return { ...SAFE_FALLBACK };
+  }
+
+  console.log(`[analyzeDocument] Response length: ${rawText.length}, preview: ${rawText.slice(0, 80)}`);
 
   if (!rawText) {
     console.error("[analyzeDocument] Gemini returned an empty response.");
@@ -254,15 +214,16 @@ export async function analyzeDocument(documentText) {
 
   // ── Parse JSON ──────────────────────────────────────────────────────────────
   const parsed = extractJSON(rawText);
-
   if (!parsed) {
-    console.error("[analyzeDocument] JSON extraction failed. Raw (first 500 chars):", rawText.slice(0, 500));
+    console.error("[analyzeDocument] JSON extraction failed. Raw:", rawText.slice(0, 300));
     return { ...SAFE_FALLBACK };
   }
 
   // ── Validate & normalize ────────────────────────────────────────────────────
   try {
-    return validateAndNormalize(parsed);
+    const normalized = validateAndNormalize(parsed);
+    console.log("[analyzeDocument] Success! Keys:", Object.keys(normalized));
+    return normalized;
   } catch (err) {
     console.error("[analyzeDocument] Schema validation failed:", err.message);
     return { ...SAFE_FALLBACK };
