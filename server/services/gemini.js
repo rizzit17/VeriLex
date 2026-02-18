@@ -8,7 +8,7 @@ if (!process.env.GEMINI_API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MODEL = "gemini-2.0-flash"; // Stable model on @google/genai v1 endpoint
+const MODEL = "gemini-2.0-flash-lite"; // Free tier available
 const MAX_TOKENS = 8192;
 
 // ── Safe fallback ─────────────────────────────────────────────────────────────
