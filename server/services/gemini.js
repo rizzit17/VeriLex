@@ -8,7 +8,7 @@ if (!process.env.GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-2.5-flash-preview-04-17";
 const MAX_TOKENS = 8192;
 
 // ── Safe fallback ─────────────────────────────────────────────────────────────
