@@ -14,7 +14,7 @@ import { useHistory } from "./hooks/useHistory";
 
 // Environment-aware API URL
 const API_URL = import.meta.env.PROD
-  ? "https://YOUR_RENDER_URL.onrender.com/api/upload"
+  ? "https://verilex-8e27.onrender.com/api/upload"
   // Railway backend
   : "http://localhost:3000/api/upload";  // Development
 

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import axios from "axios";
 
 const HISTORY_API_URL = import.meta.env.PROD
-    ? "https://YOUR_RENDER_URL.onrender.com/api/history"
+    ? "https://verilex-8e27.onrender.com/api/history"
     : "http://localhost:3000/api/history";
 
 const HistoryContext = createContext(null);
