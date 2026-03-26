@@ -1,15 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 
 // ── Client setup ──────────────────────────────────────────────────────────────
+// NOTE: We lazily validate the key per-request so a missing env var doesn't
+// crash the whole server process on startup (important for Railway deployments).
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("Missing required environment variable: GEMINI_API_KEY");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-const MODEL = "gemini-2.0-flash-lite"; // Free tier available
+const MODEL = "gemini-2.0-flash";
 const MAX_TOKENS = 8192;
+
+function getAIClient() {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("Missing required environment variable: GEMINI_API_KEY");
+  }
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+}
 
 // ── Safe fallback ─────────────────────────────────────────────────────────────
 
@@ -143,6 +146,7 @@ Return ONLY the JSON object, nothing else.`;
   // ── API call ────────────────────────────────────────────────────────────────
   let rawText;
   try {
+    const ai = getAIClient();
     console.log(`[analyzeDocument] Calling ${MODEL} with ${truncated.length} chars...`);
     const response = await ai.models.generateContent({
       model: MODEL,
