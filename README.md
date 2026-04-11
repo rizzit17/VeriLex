@@ -16,7 +16,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 <h3>
-  <a href="https://veri-lex-bph5.vercel.app/">🌐 Live Demo</a>
+  <a href="https://veri-lex.vercel.app/">🌐 Live Demo</a>
   <span> | </span>
   <a href="#-features">✨ Features</a>
   <span> | </span>
