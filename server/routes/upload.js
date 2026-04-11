@@ -3,7 +3,8 @@ import multer from "multer";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { dirname, join } from "path";
-import { analyzeDocument } from "../services/gemini.js";
+import { analyzeDocument } from "../services/groq.js";
+
 import { addHistoryEntry, getAllHistory } from "../utils/history.js";
 
 // ── Worker setup ──────────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ const router = Router();
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;  // 20 MB
 const MIN_TEXT_LENGTH = 30;                 // chars — below this it's not a real document
 const MAX_TEXT_LENGTH = 90_000;             // chars — cap before sending to Claude
-const CLAUDE_TIMEOUT_MS = 60_000;             // 60 s timeout for AI call
+const AI_TIMEOUT_MS = 60_000;                 // 60 s timeout for AI call
 const PDF_TIMEOUT_MS = 30_000;             // 30 s timeout for PDF parsing
 const ALLOWED_MIMETYPES = new Set(["application/pdf"]);
 const ALLOWED_EXTENSIONS = new Set([".pdf"]);
@@ -212,23 +213,32 @@ router.post("/upload", uploadMiddleware, async (req, res, next) => {
     try {
       analysis = await withTimeout(
         analyzeDocument(extractedText),
-        CLAUDE_TIMEOUT_MS,
+        AI_TIMEOUT_MS,
         "AI analysis"
       );
     } catch (err) {
-      console.error("[Claude Error]", err.message, { file: req.file.originalname });
+      console.error("[Groq Error]", err.message, { file: req.file.originalname });
 
       // Timeout (from withTimeout)
       if (err.status === 504) {
         return sendError(res, 504, err.message);
       }
+      if (err.status === 500) {
+        return sendError(res, 500, err.message);
+      }
+      if (err.status === 402) {
+        return sendError(res, 402, err.message);
+      }
       // Rate limit
-      if (err.message?.includes("rate_limit") || err.message?.includes("429")) {
-        return sendError(res, 429, "AI service is rate-limited. Please wait a moment and try again.");
+      if (err.status === 429 || err.message?.includes("rate_limit") || err.message?.includes("429")) {
+        return sendError(res, 429, err.message || "AI service is rate-limited. Please wait a moment and try again.");
       }
       // Auth / billing
       if (err.message?.includes("credit") || err.message?.includes("401") || err.message?.includes("403")) {
         return sendError(res, 402, "AI service authentication failed. Check your API key and account credits.");
+      }
+      if (err.status === 502) {
+        return sendError(res, 502, err.message || "AI analysis failed due to a service error. Please try again.");
       }
       // Catch-all service error
       return sendError(res, 502, "AI analysis failed due to a service error. Please try again.");
