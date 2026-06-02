@@ -1,9 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { buildApiUrl } from "../config/api";
 
-const HISTORY_API_URL = import.meta.env.PROD
-    ? "https://verilex-8e27.onrender.com/api/history"
-    : "http://localhost:3000/api/history";
+const HISTORY_API_URL = buildApiUrl("/api/history");
 
 const HistoryContext = createContext(null);
 

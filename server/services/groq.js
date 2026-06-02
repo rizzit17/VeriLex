@@ -154,15 +154,22 @@ Do not include markdown.
 Do not include code fences.
 Do not include explanation text before or after the JSON.
 
+CRITICAL INSTRUCTIONS FOR RISK ASSESSMENT:
+1. Do NOT force a "HIGH" risk if the document is standard or fair.
+2. "HIGH" risk: Severe liabilities, uncapped damages, immediate termination without cause, or highly unusual/predatory terms.
+3. "MEDIUM" risk: Long non-competes, one-sided terms, or non-standard requirements.
+4. "LOW" risk: Minor ambiguities, broad definitions, or easily fixable terms.
+5. If the document is standard and fair, return an empty array [] for "risky_clauses".
+
 The JSON must have exactly these keys:
 {
   "summary": "2-3 sentence summary",
   "key_obligations": ["array of obligations"],
   "risky_clauses": [
     {
-      "clause": "clause name or short quote",
-      "risk_level": "HIGH or MEDIUM or LOW",
-      "reason": "why it is risky"
+      "clause": "exact quote of the risky clause",
+      "risk_level": "HIGH, MEDIUM, or LOW",
+      "reason": "why it is risky based on the criteria above"
     }
   ],
   "missing_clauses": ["array of missing standard clauses"],

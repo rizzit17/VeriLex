@@ -19,15 +19,15 @@ export default function VeriLexLogo({ size = 32 }) {
             {/* Left scale */}
             <path
                 d="M16 22L12 26H20L16 22Z"
-                fill="#d4a574"
-                stroke="#b8860b"
+                fill="#E0C39A"
+                stroke="#CFA87A"
                 strokeWidth="1"
             />
             {/* Right scale */}
             <path
                 d="M32 22L28 26H36L32 22Z"
-                fill="#d4a574"
-                stroke="#b8860b"
+                fill="#E0C39A"
+                stroke="#CFA87A"
                 strokeWidth="1"
             />
             {/* Balance beam */}
@@ -36,7 +36,7 @@ export default function VeriLexLogo({ size = 32 }) {
                 y1="22"
                 x2="32"
                 y2="22"
-                stroke="#d4a574"
+                stroke="#E0C39A"
                 strokeWidth="1.5"
                 strokeLinecap="round"
             />
@@ -46,7 +46,7 @@ export default function VeriLexLogo({ size = 32 }) {
                 y1="16"
                 x2="24"
                 y2="22"
-                stroke="#d4a574"
+                stroke="#E0C39A"
                 strokeWidth="1.5"
                 strokeLinecap="round"
             />
@@ -54,8 +54,8 @@ export default function VeriLexLogo({ size = 32 }) {
             {/* Gradient definition */}
             <defs>
                 <linearGradient id="goldGradient" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#d4a574" />
-                    <stop offset="100%" stopColor="#b8860b" />
+                    <stop offset="0%" stopColor="#E0C39A" />
+                    <stop offset="100%" stopColor="#CFA87A" />
                 </linearGradient>
             </defs>
         </svg>

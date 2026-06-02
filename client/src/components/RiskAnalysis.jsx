@@ -1,191 +1,143 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "../hooks/useHistory";
 
-// ── Compute overall risk from risky clauses ───────────────────────────────────
 function getOverallRisk(analysis) {
   if (!analysis?.risky_clauses || analysis.risky_clauses.length === 0) return "LOW";
-
-  const hasHigh = analysis.risky_clauses.some(c => c.risk_level === "HIGH");
-  if (hasHigh) return "HIGH";
-
-  const hasMedium = analysis.risky_clauses.some(c => c.risk_level === "MEDIUM");
-  if (hasMedium) return "MEDIUM";
-
+  if (analysis.risky_clauses.some(c => c.risk_level === "HIGH")) return "HIGH";
+  if (analysis.risky_clauses.some(c => c.risk_level === "MEDIUM")) return "MEDIUM";
   return "LOW";
 }
 
-// ── Compute risk distribution from history ────────────────────────────────────
 function computeRiskDistribution(history) {
   const counts = { LOW: 0, MEDIUM: 0, HIGH: 0 };
-
-  history.forEach(entry => {
-    const risk = getOverallRisk(entry.analysis);
-    counts[risk]++;
-  });
-
+  history.forEach(entry => { counts[getOverallRisk(entry.analysis)]++; });
   const total = history.length || 1;
-
   return [
-    {
-      level: "low", label: "Low Risk", value: counts.LOW,
-      pct: Math.round((counts.LOW / total) * 100),
-      color: "#d4a574", bg: "rgba(45,80,22,0.15)", border: "rgba(45,80,22,0.3)",
-      bar: "linear-gradient(90deg,#2d5016,#4a6b2e)"
-    },
-    {
-      level: "medium", label: "Medium Risk", value: counts.MEDIUM,
-      pct: Math.round((counts.MEDIUM / total) * 100),
-      color: "#d4a574", bg: "rgba(204,119,34,0.15)", border: "rgba(204,119,34,0.3)",
-      bar: "linear-gradient(90deg,#cc7722,#e89a3c)"
-    },
-    {
-      level: "high", label: "High Risk", value: counts.HIGH,
-      pct: Math.round((counts.HIGH / total) * 100),
-      color: "#d4a574", bg: "rgba(139,46,46,0.15)", border: "rgba(139,46,46,0.3)",
-      bar: "linear-gradient(90deg,#8b2e2e,#a84444)"
-    },
+    { level: "HIGH",   label: "High Risk",   value: counts.HIGH,   pct: Math.round((counts.HIGH / total) * 100),   color: "#EF4444", bar: "linear-gradient(90deg,#EF4444,#F87171)" },
+    { level: "MEDIUM", label: "Medium Risk", value: counts.MEDIUM, pct: Math.round((counts.MEDIUM / total) * 100), color: "#F59E0B", bar: "linear-gradient(90deg,#F59E0B,#FCD34D)" },
+    { level: "LOW",    label: "Low Risk",    value: counts.LOW,    pct: Math.round((counts.LOW / total) * 100),    color: "#4CAF50", bar: "linear-gradient(90deg,#4CAF50,#81C784)" },
   ];
 }
 
-// ── Find most common issue ────────────────────────────────────────────────────
-function getMostCommonIssue(history) {
-  const issueCounts = {};
+// SVG Donut Chart
+function DonutChart({ risks, total }) {
+  const [animated, setAnimated] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setAnimated(true), 300); return () => clearTimeout(t); }, []);
 
-  history.forEach(entry => {
-    if (!entry.analysis?.risky_clauses) return;
-    entry.analysis.risky_clauses.forEach(clause => {
-      if (!clause.reason) return;
-      // Extract first few words as the issue type
-      const issue = clause.reason.split(/[.,:;]|(?:\s+and\s+)/i)[0].trim();
-      if (issue) {
-        issueCounts[issue] = (issueCounts[issue] || 0) + 1;
-      }
-    });
+  const cx = 60, cy = 60, r = 48, stroke = 12;
+  const circum = 2 * Math.PI * r;
+  let offset = 0;
+  const segments = risks.map(risk => {
+    const dash = animated ? (risk.pct / 100) * circum : 0;
+    const gap  = circum - dash;
+    const seg  = { ...risk, dash, gap, offset };
+    offset += dash;
+    return seg;
   });
 
-  const entries = Object.entries(issueCounts);
-  if (entries.length === 0) return "No issues detected";
-
-  entries.sort((a, b) => b[1] - a[1]);
-  return entries[0][0];
-}
-
-function RiskBar({ label, value, pct, color, bg, border, bar, index }) {
-  const [width, setWidth] = useState(0);
-  const [hovered, setHovered] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setWidth(pct), 400 + index * 120);
-    return () => clearTimeout(t);
-  }, [pct, index]);
+  const dominantRisk = risks.find(r => r.value > 0)?.label || "No Data";
 
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        padding: "14px 16px", borderRadius: 12,
-        background: hovered ? bg : "transparent",
-        border: `1px solid ${hovered ? border : "transparent"}`,
-        transition: "all 0.2s ease",
-        display: "flex", flexDirection: "column", gap: 10,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{
-          display: "inline-flex", padding: "3px 10px", borderRadius: 99,
-          fontSize: 10, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-          background: bg, color, border: `1px solid ${border}`,
-        }}>
-          {label}
-        </span>
-        <span style={{ fontSize: 16, fontWeight: 800, color, fontFamily: "'Fraunces', Georgia, serif" }}>
-          {value.toLocaleString()}
-        </span>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <div style={{ position: "relative", width: 120, height: 120 }}>
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          {/* Track */}
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--vl-border)" strokeWidth={stroke} />
+          {/* Segments */}
+          {total === 0 ? (
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--vl-border2)" strokeWidth={stroke} />
+          ) : segments.map((seg, i) => (
+            <circle key={i} cx={cx} cy={cy} r={r} fill="none"
+              stroke={seg.color} strokeWidth={stroke}
+              strokeDasharray={`${seg.dash} ${seg.gap}`}
+              strokeDashoffset={-seg.offset}
+              strokeLinecap="round"
+              style={{ transform: "rotate(-90deg)", transformOrigin: "60px 60px", transition: "stroke-dasharray 0.9s cubic-bezier(0.4,0,0.2,1)" }}
+            />
+          ))}
+        </svg>
+        {/* Center text */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--vl-text)", fontFamily: "'Playfair Display', serif", lineHeight: 1 }}>{total}</div>
+          <div style={{ fontSize: 9, color: "var(--vl-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>total</div>
+        </div>
       </div>
-      {/* Track */}
-      <div style={{ width: "100%", height: 7, background: "#3a2f28", borderRadius: 99, overflow: "hidden" }}>
-        <div style={{
-          height: "100%", width: `${width}%`,
-          background: bar, borderRadius: 99,
-          transition: "width 0.7s cubic-bezier(0.4,0,0.2,1)",
-          boxShadow: hovered ? `0 0 10px ${color}66` : "none",
-        }} />
+
+      {/* Legend */}
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+        {risks.map(risk => (
+          <div key={risk.level} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: risk.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 10, color: "var(--vl-muted)", fontWeight: 600 }}>{risk.label}</span>
+          </div>
+        ))}
       </div>
-      <div style={{ fontSize: 11, color: "#a39688", textAlign: "right" }}>{pct}% of total</div>
+    </div>
+  );
+}
+
+function RiskBar({ label, value, pct, color, bar, index }) {
+  const [width, setWidth] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setWidth(pct), 500 + index * 120); return () => clearTimeout(t); }, [pct, index]);
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--vl-text2)" }}>{label}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color }}>{value}</span>
+          <span style={{ fontSize: 10, color: "var(--vl-muted)" }}>{pct}%</span>
+        </div>
+      </div>
+      <div style={{ width: "100%", height: 6, background: "var(--vl-border)", borderRadius: 99, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${width}%`, background: bar, borderRadius: 99, transition: "width 0.75s cubic-bezier(0.4,0,0.2,1)" }} />
+      </div>
     </div>
   );
 }
 
 export default function RiskAnalysis() {
-  const [hovered, setHovered] = useState(false);
   const { history, loading } = useHistory();
-
   const risks = computeRiskDistribution(history);
-  const mostCommonIssue = getMostCommonIssue(history);
-  const highRiskCount = risks.find(r => r.level === "high")?.value || 0;
+  const highRiskCount = risks.find(r => r.level === "HIGH")?.value || 0;
 
   return (
-    <section
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: "#2a1f1a",
-        border: `1px solid ${hovered ? "#6b5d52" : "#4a3728"}`,
-        borderRadius: 18, overflow: "hidden",
-        boxShadow: hovered ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.2)",
-        transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
-      }}
-    >
+    <section style={{ background: "var(--vl-card)", border: "1px solid var(--vl-border)", borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.25)" }}>
       {/* Header */}
-      <div style={{ padding: "18px 24px", borderBottom: "1px solid #4a3728" }}>
-        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#faf7f2", fontFamily: "'Playfair Display', Georgia, serif" }}>
-          Risk Distribution
-        </h2>
-        <p style={{ margin: "2px 0 0", fontSize: 12, color: "#a39688" }}>
+      <div style={{ padding: "18px 22px", borderBottom: "1px solid var(--vl-border)" }}>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--vl-text)", fontFamily: "'Playfair Display', Georgia, serif" }}>Risk Distribution</h2>
+        <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--vl-muted)" }}>
           {loading ? "Loading..." : `Across ${history.length} analyzed document${history.length !== 1 ? "s" : ""}`}
         </p>
       </div>
 
-      {/* Bars */}
-      {loading ? (
-        <div style={{ padding: "20px", textAlign: "center", color: "#a39688" }}>
-          <div style={{ fontSize: 12 }}>Loading risk data...</div>
-        </div>
-      ) : history.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px 20px", color: "#a39688" }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>No risk data available</div>
-          <div style={{ fontSize: 12 }}>Upload documents to see risk analysis</div>
-        </div>
-      ) : (
-        <>
-          <div style={{ padding: "12px 8px" }}>
+      <div style={{ padding: "20px 22px" }}>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "30px 0", color: "var(--vl-muted)", fontSize: 13 }}>Loading risk data...</div>
+        ) : history.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 20px" }}>
+            <div style={{ fontSize: 40, marginBottom: 10, opacity: 0.4 }}>📊</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--vl-text2)", marginBottom: 4 }}>No risk data yet</div>
+            <div style={{ fontSize: 12, color: "var(--vl-muted)" }}>Upload documents to see analysis</div>
+          </div>
+        ) : (
+          <>
+            <DonutChart risks={risks} total={history.length} />
+            <div style={{ height: 1, background: "var(--vl-border)", margin: "20px 0" }} />
             {risks.map((r, i) => <RiskBar key={r.level} {...r} index={i} />)}
-          </div>
-
-          {/* Insights */}
-          <div style={{ margin: "0 20px 20px", padding: "16px", borderRadius: 12, background: "#2a1f1a", border: "1px solid #4a3728" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>
-              Key Insights
-            </div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-              <li style={{ display: "flex", gap: 10, fontSize: 13, color: "#94a3b8", alignItems: "flex-start" }}>
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="#d4a574" style={{ flexShrink: 0, marginTop: 1 }}>
-                  <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm3.707-8.707l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L7 8.172l3.293-3.293a1 1 0 011.414 1.414z" clipRule="evenodd" />
+            {highRiskCount > 0 && (
+              <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 10, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="#EF4444" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <path fillRule="evenodd" d="M8.982 1.566a1.13 1.13 0 00-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995A.905.905 0 018 5zm.002 6a1 1 0 110 2 1 1 0 010-2z" clipRule="evenodd" />
                 </svg>
-                {highRiskCount} high-risk clause{highRiskCount !== 1 ? "s" : ""} detected
-              </li>
-              <li style={{ display: "flex", gap: 10, fontSize: 13, color: "#94a3b8", alignItems: "flex-start" }}>
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="#d4a574" style={{ flexShrink: 0, marginTop: 1 }}>
-                  <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm3.707-8.707l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L7 8.172l3.293-3.293a1 1 0 011.414 1.414z" clipRule="evenodd" />
-                </svg>
-                Most common issue: {mostCommonIssue}
-              </li>
-            </ul>
-          </div>
-        </>
-      )}
+                <span style={{ fontSize: 12, color: "#F87171", lineHeight: 1.5 }}>
+                  <strong>{highRiskCount}</strong> high-risk document{highRiskCount !== 1 ? "s" : ""} requiring immediate legal review
+                </span>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </section>
   );
 }

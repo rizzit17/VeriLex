@@ -3,28 +3,29 @@ import { useHistory } from "../hooks/useHistory";
 import { formatRelativeTime, formatFileSize } from "../utils/timeUtils";
 
 const riskConfig = {
-  LOW: { label: "Low Risk", bg: "rgba(45,80,22,0.15)", color: "#d4a574", border: "rgba(45,80,22,0.4)" },
-  MEDIUM: { label: "Medium Risk", bg: "rgba(204,119,34,0.15)", color: "#d4a574", border: "rgba(204,119,34,0.4)" },
-  HIGH: { label: "High Risk", bg: "rgba(139,46,46,0.15)", color: "#d4a574", border: "rgba(139,46,46,0.4)" },
+  LOW:    { label: "Low Risk",    cls: "vl-badge vl-badge-low" },
+  MEDIUM: { label: "Medium Risk", cls: "vl-badge vl-badge-medium" },
+  HIGH:   { label: "High Risk",   cls: "vl-badge vl-badge-high" },
 };
 
-// ── Compute overall risk from risky clauses ───────────────────────────────────
 function getOverallRisk(analysis) {
   if (!analysis?.risky_clauses || analysis.risky_clauses.length === 0) return "LOW";
-
-  const hasHigh = analysis.risky_clauses.some(c => c.risk_level === "HIGH");
-  if (hasHigh) return "HIGH";
-
-  const hasMedium = analysis.risky_clauses.some(c => c.risk_level === "MEDIUM");
-  if (hasMedium) return "MEDIUM";
-
+  if (analysis.risky_clauses.some(c => c.risk_level === "HIGH")) return "HIGH";
+  if (analysis.risky_clauses.some(c => c.risk_level === "MEDIUM")) return "MEDIUM";
   return "LOW";
 }
 
-function DocItem({ entry, onClick }) {
+const fileIcon = (
+  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+  </svg>
+);
+
+function DocRow({ entry, onClick }) {
   const [hovered, setHovered] = useState(false);
   const risk = getOverallRisk(entry.analysis);
   const r = riskConfig[risk];
+  const clauseCount = entry.analysis?.risky_clauses?.length || 0;
 
   return (
     <div
@@ -32,119 +33,126 @@ function DocItem({ entry, onClick }) {
       onMouseLeave={() => setHovered(false)}
       onClick={() => onClick(entry)}
       style={{
-        display: "flex", alignItems: "center", gap: 12,
-        padding: "12px 14px", borderRadius: 12,
-        background: hovered ? "#3a2f28" : "#2a1f1a",
-        border: `1px solid ${hovered ? "#6b5d52" : "#4a3728"}`,
+        display: "flex", alignItems: "center", gap: 14,
+        padding: "13px 16px", borderRadius: 12,
+        background: hovered ? "var(--vl-card2)" : "transparent",
+        border: `1px solid ${hovered ? "var(--vl-border2)" : "transparent"}`,
         transform: hovered ? "translateX(4px)" : "translateX(0)",
-        boxShadow: hovered ? "0 4px 16px rgba(0,0,0,0.3)" : "none",
+        boxShadow: hovered ? "0 4px 20px rgba(0,0,0,0.3)" : "none",
         transition: "all 0.2s cubic-bezier(0.4,0,0.2,1)",
         cursor: "pointer",
       }}
     >
       {/* File icon */}
       <div style={{
-        width: 38, height: 38, borderRadius: 10,
-        background: "#3a2f28", border: "1px solid #4a3728",
+        width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+        background: hovered ? "rgba(212,164,74,0.2)" : "rgba(212,164,74,0.1)",
+        border: "1px solid rgba(212,164,74,0.2)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#d4a574", flexShrink: 0,
-        transition: "background 0.2s",
+        color: "var(--vl-ochre)",
+        transition: "all 0.2s ease",
       }}>
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-        </svg>
+        {fileIcon}
       </div>
 
-      {/* Info */}
+      {/* File info */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: hovered ? "#faf7f2" : "#e8dfd5", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 2 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: hovered ? "var(--vl-text)" : "var(--vl-text2)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 2 }}>
           {entry.file.originalName}
         </div>
-        <div style={{ fontSize: 11, color: "#a39688" }}>
+        <div style={{ fontSize: 11, color: "var(--vl-muted)" }}>
           {formatRelativeTime(entry.timestamp)} · {formatFileSize(entry.file.sizeBytes)}
         </div>
       </div>
 
-      {/* Badge */}
-      <span style={{
-        flexShrink: 0, padding: "3px 10px", borderRadius: 99,
-        fontSize: 10, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-        background: r.bg, color: r.color, border: `1px solid ${r.border}`,
-      }}>
-        {r.label}
-      </span>
+      {/* Clause count */}
+      <div style={{ fontSize: 12, color: "var(--vl-muted)", fontWeight: 500, flexShrink: 0, minWidth: 60, textAlign: "center" }}>
+        {clauseCount > 0 ? (
+          <span style={{ color: risk === "HIGH" ? "#EF4444" : risk === "MEDIUM" ? "#F59E0B" : "var(--vl-muted)" }}>
+            {clauseCount} clause{clauseCount !== 1 ? "s" : ""}
+          </span>
+        ) : <span>Clean</span>}
+      </div>
+
+      {/* Risk badge */}
+      <span className={r.cls}>{r.label}</span>
+
+      {/* Arrow */}
+      <div style={{ opacity: hovered ? 1 : 0, transform: hovered ? "translateX(0)" : "translateX(-4px)", transition: "all 0.2s", color: "var(--vl-ochre)", flexShrink: 0 }}>
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+        </svg>
+      </div>
     </div>
   );
 }
 
-function SkeletonItem() {
+function SkeletonRow() {
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 12,
-      padding: "12px 14px", borderRadius: 12,
-      background: "#2a1f1a", border: "1px solid #4a3728",
-    }}>
-      <div style={{ width: 38, height: 38, borderRadius: 10, background: "#3a2f28" }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 16px" }}>
+      <div className="vl-skeleton" style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0 }} />
       <div style={{ flex: 1 }}>
-        <div style={{ height: 13, width: "60%", background: "#3a2f28", borderRadius: 4, marginBottom: 6 }} />
-        <div style={{ height: 11, width: "40%", background: "#3a2f28", borderRadius: 4 }} />
+        <div className="vl-skeleton" style={{ height: 12, width: "55%", marginBottom: 6 }} />
+        <div className="vl-skeleton" style={{ height: 10, width: "35%" }} />
       </div>
-      <div style={{ width: 70, height: 20, background: "#3a2f28", borderRadius: 99 }} />
+      <div className="vl-skeleton" style={{ width: 70, height: 20, borderRadius: 99 }} />
     </div>
   );
 }
 
 export default function RecentDocuments({ onViewAnalysis }) {
-  const [hovered, setHovered] = useState(false);
   const { history, loading } = useHistory();
-
-  const recentDocs = history.slice(0, 5);
+  const recentDocs = history.slice(0, 6);
 
   return (
-    <section
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        gridColumn: "1 / -1",
-        background: "#2a1f1a",
-        border: `1px solid ${hovered ? "#6b5d52" : "#4a3728"}`,
-        borderRadius: 18,
-        overflow: "hidden",
-        boxShadow: hovered ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.2)",
-        transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
-      }}
-    >
-      {/* Card header */}
-      <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "18px 24px", borderBottom: "1px solid #4a3728",
-      }}>
+    <section style={{
+      gridColumn: "1 / -1",
+      background: "var(--vl-card)",
+      border: "1px solid var(--vl-border)",
+      borderRadius: 18, overflow: "hidden",
+      boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+      transition: "border-color 0.25s",
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 22px", borderBottom: "1px solid var(--vl-border)" }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#f1f5f9", fontFamily: "'Fraunces', Georgia, serif" }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--vl-text)", fontFamily: "'Playfair Display', Georgia, serif" }}>
             Recent Documents
           </h2>
-          <p style={{ margin: "2px 0 0", fontSize: 12, color: "#475569" }}>
+          <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--vl-muted)" }}>
             {loading ? "Loading..." : `${history.length} document${history.length !== 1 ? "s" : ""} analyzed`}
           </p>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="vl-badge vl-badge-ochre" style={{ fontSize: 11 }}>
+            {recentDocs.length} recent
+          </span>
+        </div>
       </div>
 
+      {/* Column headers */}
+      {!loading && recentDocs.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "9px 16px", borderBottom: "1px solid rgba(74,54,38,0.5)" }}>
+          <div style={{ width: 38, flexShrink: 0 }} />
+          <div style={{ flex: 1, fontSize: 10, fontWeight: 700, color: "var(--vl-muted2)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Document</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "var(--vl-muted2)", textTransform: "uppercase", letterSpacing: "0.1em", minWidth: 60, textAlign: "center" }}>Clauses</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "var(--vl-muted2)", textTransform: "uppercase", letterSpacing: "0.1em", minWidth: 80 }}>Risk Level</div>
+          <div style={{ width: 14, flexShrink: 0 }} />
+        </div>
+      )}
+
       {/* List */}
-      <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ padding: "8px 6px" }}>
         {loading ? (
-          <>
-            <SkeletonItem />
-            <SkeletonItem />
-            <SkeletonItem />
-          </>
+          <><SkeletonRow /><SkeletonRow /><SkeletonRow /></>
         ) : recentDocs.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 20px", color: "#475569" }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>No documents analyzed yet</div>
-            <div style={{ fontSize: 12 }}>Upload a PDF to get started</div>
+          <div style={{ textAlign: "center", padding: "48px 20px" }}>
+            <div style={{ fontSize: 44, marginBottom: 12, opacity: 0.4 }}>📄</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "var(--vl-text2)", marginBottom: 6 }}>No documents yet</div>
+            <div style={{ fontSize: 13, color: "var(--vl-muted)" }}>Upload a PDF contract to get started</div>
           </div>
         ) : (
-          recentDocs.map(entry => <DocItem key={entry.id} entry={entry} onClick={onViewAnalysis} />)
+          recentDocs.map(entry => <DocRow key={entry.id} entry={entry} onClick={onViewAnalysis} />)
         )}
       </div>
     </section>

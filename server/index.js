@@ -1,7 +1,16 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import uploadRouter from "./routes/upload.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Load env vars from both the process cwd and the server directory so local
+// runs work whether the app is started from the repo root or /server.
+dotenv.config();
+dotenv.config({ path: join(__dirname, ".env"), override: false });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
