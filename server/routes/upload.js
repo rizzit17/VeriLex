@@ -3,7 +3,7 @@ import multer from "multer";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { dirname, join } from "path";
-import { analyzeDocument } from "../services/groq.js";
+import { analyzeDocument } from "../services/gemini.js";
 
 import { addHistoryEntry, getAllHistory } from "../utils/history.js";
 
@@ -217,7 +217,7 @@ router.post("/upload", uploadMiddleware, async (req, res, next) => {
         "AI analysis"
       );
     } catch (err) {
-      console.error("[Groq Error]", err.message, { file: req.file.originalname });
+      console.error("[Gemini Error]", err.message, { file: req.file.originalname });
 
       // Timeout (from withTimeout)
       if (err.status === 504) {

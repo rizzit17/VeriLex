@@ -1,7 +1,7 @@
-import Groq from "groq-sdk";
+import { GoogleGenAI, Type } from "@google/genai";
 
 // Keep the same exported function name so the rest of the app keeps working.
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "gemini-2.5-flash";
 
 class AIServiceError extends Error {
   constructor(message, status = 502) {
@@ -12,16 +12,14 @@ class AIServiceError extends Error {
 }
 
 function getAIClient() {
-  if (!process.env.GROQ_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     throw new AIServiceError(
-      "Groq API key is missing. Set GROQ_API_KEY on the server and try again.",
+      "Gemini API key is missing. Set GEMINI_API_KEY on the server and try again.",
       500
     );
   }
 
-  return new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-  });
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 }
 
 const SAFE_FALLBACK = {
@@ -161,21 +159,6 @@ CRITICAL INSTRUCTIONS FOR RISK ASSESSMENT:
 4. "LOW" risk: Minor ambiguities, broad definitions, or easily fixable terms.
 5. If the document is standard and fair, return an empty array [] for "risky_clauses".
 
-The JSON must have exactly these keys:
-{
-  "summary": "2-3 sentence summary",
-  "key_obligations": ["array of obligations"],
-  "risky_clauses": [
-    {
-      "clause": "exact quote of the risky clause",
-      "risk_level": "HIGH, MEDIUM, or LOW",
-      "reason": "why it is risky based on the criteria above"
-    }
-  ],
-  "missing_clauses": ["array of missing standard clauses"],
-  "suggestions": ["2-5 practical legal review suggestions"]
-}
-
 DOCUMENT TO ANALYZE:
 ---
 ${truncated}
@@ -186,60 +169,63 @@ ${truncated}
   try {
     const ai = getAIClient();
 
-    console.log(`[analyzeDocument] Calling Groq model ${MODEL} with ${truncated.length} chars...`);
+    console.log(`[analyzeDocument] Calling Gemini model ${MODEL} with ${truncated.length} chars...`);
 
-    const completion = await ai.chat.completions.create({
+    const result = await ai.models.generateContent({
       model: MODEL,
-      temperature: 0.1,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a legal document analyzer. Return only valid JSON matching the requested schema.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      contents: "System: You are a legal document analyzer. Return only valid JSON matching the requested schema.\n\n" + prompt,
+      config: {
+        temperature: 0.1,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            summary: { type: Type.STRING },
+            key_obligations: { type: Type.ARRAY, items: { type: Type.STRING } },
+            risky_clauses: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  clause: { type: Type.STRING },
+                  risk_level: { type: Type.STRING },
+                  reason: { type: Type.STRING }
+                }
+              }
+            },
+            missing_clauses: { type: Type.ARRAY, items: { type: Type.STRING } },
+            suggestions: { type: Type.ARRAY, items: { type: Type.STRING } }
+          }
+        }
+      }
     });
 
-    rawText = completion.choices?.[0]?.message?.content?.trim() || "";
+    rawText = result.text.trim();
 
     console.log(`[analyzeDocument] Got response: ${rawText.length} chars`);
     console.log(`[analyzeDocument] Preview: ${rawText.slice(0, 150)}`);
   } catch (err) {
-    console.error("[analyzeDocument] Groq API FAILED:", err?.message ?? err);
+    console.error("[analyzeDocument] Gemini API FAILED:", err?.message ?? err);
 
     const message = String(err?.message ?? "");
 
-    if (
-      err?.status === 401 ||
-      err?.status === 403 ||
-      /401|403|api key|api_key|invalid|unauthorized|forbidden/i.test(message)
-    ) {
+    if (/api key|api_key|invalid|unauthorized|forbidden|401|403/i.test(message)) {
       throw new AIServiceError(
-        "Groq authentication failed. Check that GROQ_API_KEY is valid.",
+        "Gemini authentication failed. Check that GEMINI_API_KEY is valid.",
         502
       );
     }
 
-    if (
-      err?.status === 429 ||
-      /429|rate limit|too many requests/i.test(message)
-    ) {
+    if (/rate limit|too many requests|429/i.test(message)) {
       throw new AIServiceError(
-        "Groq is rate-limiting requests right now. Please wait a moment and try again.",
+        "Gemini is rate-limiting requests right now. Please wait a moment and try again.",
         429
       );
     }
 
-    if (
-      err?.status === 402 ||
-      /quota|billing|credits|payment|required/i.test(message)
-    ) {
+    if (/quota|billing|credits|payment|required|402/i.test(message)) {
       throw new AIServiceError(
-        "Groq quota or billing issue detected. Check your account usage and credits.",
+        "Gemini quota or billing issue detected. Check your account usage and credits.",
         402
       );
     }
@@ -249,7 +235,7 @@ ${truncated}
     }
 
     throw new AIServiceError(
-      "Groq analysis request failed. Please verify the API key and model access.",
+      "Gemini analysis request failed. Please verify the API key and model access.",
       502
     );
   }
@@ -261,7 +247,8 @@ ${truncated}
 
   const parsed = extractJSON(rawText);
   if (!parsed) {
-    console.error("[analyzeDocument] JSON parse FAILED. Raw:", rawText.slice(0, 300));
+    console.error("[analyzeDocument] JSON parse FAILED. Saving raw text to debug-failed.json.");
+    import("fs").then(fs => fs.writeFileSync("debug-failed.json", rawText));
     return { ...SAFE_FALLBACK };
   }
 

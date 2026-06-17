@@ -42,7 +42,7 @@
   body {
     font-family: 'Montserrat', system-ui, sans-serif;
     background-color: var(--vl-bg);
-    background-image: url('/bg_pillars.png');
+    background-image: url('/bg_modern.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

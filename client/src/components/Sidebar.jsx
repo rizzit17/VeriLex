@@ -49,7 +49,7 @@ function getInitials(name) {
 }
 
 export default function Sidebar({ activePage, setActivePage }) {
-  const [hoveredId, setHoveredId]     = useState(null);
+  const [hoveredId, setHoveredId] = useState(null);
   const [profileName, setProfileName] = useState("Rishit Chaudhary");
   const [profileRole, setProfileRole] = useState("Legal Analyst");
 
@@ -143,7 +143,7 @@ export default function Sidebar({ activePage, setActivePage }) {
               letterSpacing: "0.05em",
             }}>Lex</h1>
           </div>
-          
+
           <div style={{ textAlign: "center", marginTop: 8 }}>
             <p style={{
               margin: 0, fontSize: 8, color: "var(--vl-muted)",
@@ -180,8 +180,8 @@ export default function Sidebar({ activePage, setActivePage }) {
         {/* ── Nav links ─────────────────────────────────────────── */}
         <nav style={{ flex: 1, padding: "4px 10px", overflowY: "auto" }}>
           {navLinks.map((link) => {
-            const isActive  = activePage === link.id;
-            const isHovered = hoveredId  === link.id;
+            const isActive = activePage === link.id;
+            const isHovered = hoveredId === link.id;
             return (
               <a
                 key={link.id}

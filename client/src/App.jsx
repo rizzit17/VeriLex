@@ -36,25 +36,26 @@ function RiskBadge({ level }) {
   return <span className={cls[level] ?? cls.LOW}>{level}</span>;
 }
 
-// ── Intro splash ────────────────────────────────────────────────────────────
-function IntroPage({ onSkip }) {
+// ── Landing Page ────────────────────────────────────────────────────────────
+function LandingPage({ onSkip }) {
   const [fadeOut, setFadeOut] = useState(false);
+
   useEffect(() => {
-    const t1 = setTimeout(() => setFadeOut(true), 3500);
-    const t2 = setTimeout(onSkip, 4000);
+    const t1 = setTimeout(() => setFadeOut(true), 2500); // Start fading out at 2.5s
+    const t2 = setTimeout(onSkip, 3000);                 // Unmount at 3s
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [onSkip]);
 
-  return (
-    <div style={{ position:"fixed", inset:0, backgroundImage:"url('/bg_pillars.png')", backgroundSize:"cover", backgroundPosition:"center", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:9999, opacity: fadeOut ? 0 : 1, transition:"opacity 0.5s ease-out" }}>
-      <div style={{ position:"absolute", inset:0, background:"rgba(5, 5, 5, 0.85)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)" }}></div>
-      <button onClick={() => { setFadeOut(true); setTimeout(onSkip, 500); }}
-        style={{ position:"absolute", top:28, right:36, background:"transparent", border:"1px solid var(--vl-border)", color:"var(--vl-ochre)", padding:"10px 20px", borderRadius:9999, fontSize:11, fontWeight:600, cursor:"pointer", fontFamily:"'Montserrat',sans-serif", textTransform:"uppercase", letterSpacing:"0.1em", transition:"all 0.2s", zIndex:2 }}
-        onMouseEnter={e => { e.currentTarget.style.background="var(--vl-ochre)"; e.currentTarget.style.color="#000000"; }}
-        onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="var(--vl-ochre)"; }}
-      >Skip Intro →</button>
+  const handleEnter = () => {
+    setFadeOut(true);
+    setTimeout(onSkip, 500);
+  };
 
-      <div style={{ position:"relative", zIndex:2, display:"flex", flexDirection:"column", alignItems:"center", gap:20, textAlign:"center", padding:"0 40px", maxWidth:560 }}>
+  return (
+    <div style={{ position:"fixed", inset:0, backgroundImage:"url('/bg_modern.png')", backgroundSize:"cover", backgroundPosition:"center", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:9999, opacity: fadeOut ? 0 : 1, transition:"opacity 0.5s ease-out" }}>
+      <div style={{ position:"absolute", inset:0, background:"rgba(5, 5, 5, 0.85)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)" }}></div>
+
+      <div style={{ position:"relative", zIndex:2, display:"flex", flexDirection:"column", alignItems:"center", gap:20, textAlign:"center", padding:"0 40px", maxWidth: 800 }}>
         <div style={{ animation:"introLogo 0.8s cubic-bezier(0.22,1,0.36,1) both", marginBottom: 10 }}>
           <VeriLexLogo size={72} />
         </div>
@@ -72,12 +73,32 @@ function IntroPage({ onSkip }) {
             letterSpacing: "0.05em",
           }}>Lex</h1>
         </div>
-        <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:18, fontWeight:400, margin:0, color:"var(--vl-text)", letterSpacing:"0.1em", textTransform:"uppercase", animation:"introWord 0.8s cubic-bezier(0.22,1,0.36,1) 1s both" }}>
+        <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:18, fontWeight:400, margin:0, color:"var(--vl-text)", letterSpacing:"0.1em", textTransform:"uppercase", animation:"introWord 0.8s cubic-bezier(0.22,1,0.36,1) 0.6s both" }}>
           AI-Powered Legal Intelligence
         </p>
-        <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:14, fontWeight:400, margin:0, color:"var(--vl-muted)", lineHeight:1.7, animation:"introWord 1s cubic-bezier(0.22,1,0.36,1) 1.5s both" }}>
-          Intelligent contract review, risk assessment, and clause analysis for legal professionals.
-        </p>
+        
+        {/* Feature Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 12, marginBottom: 24, animation: "introWord 1s cubic-bezier(0.22,1,0.36,1) 0.8s both" }}>
+          {[
+            { title: "Risk Assessment", desc: "Automated analysis of high-risk clauses and liabilities." },
+            { title: "Clause Extraction", desc: "Instant detection of key obligations and missing terms." },
+            { title: "Executive Reports", desc: "Generate premium PDF reports for legal teams." }
+          ].map((feat, i) => (
+            <div key={i} style={{ background: "rgba(20, 20, 20, 0.6)", border: "1px solid var(--vl-border)", borderRadius: 12, padding: "20px", textAlign: "left" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vl-ochre)", marginBottom: 12 }}></div>
+              <h3 style={{ margin: "0 0 8px", fontSize: 14, fontFamily: "'Montserrat', sans-serif", color: "var(--vl-text)", fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase" }}>{feat.title}</h3>
+              <p style={{ margin: 0, fontSize: 12, color: "var(--vl-muted)", lineHeight: 1.6, fontFamily: "'Montserrat', sans-serif" }}>{feat.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <button 
+          onClick={handleEnter}
+          className="vl-btn-primary"
+          style={{ padding: "16px 36px", fontSize: 12, animation: "introWord 1s cubic-bezier(0.22,1,0.36,1) 1s both" }}
+        >
+          Enter Platform →
+        </button>
       </div>
     </div>
   );
@@ -96,7 +117,11 @@ async function uploadFile(file, onResult, setLoading) {
     notify("Analysis complete!", "success");
     onResult(data);
   } catch (err) {
-    notify(`Error: ${err.response?.data?.error || err.message || "Upload failed."}`, "error");
+    let errMsg = err.response?.data?.error || err.message || "Upload failed.";
+    if (typeof errMsg === "object") {
+      errMsg = errMsg.message || JSON.stringify(errMsg);
+    }
+    notify(`Error: ${errMsg}`, "error");
   } finally {
     setLoading(false);
   }
@@ -392,7 +417,7 @@ export default function App() {
   if (showIntro) return (
     <>
       <style>{GLOBAL_STYLES}</style>
-      <IntroPage onSkip={handleSkipIntro} />
+      <LandingPage onSkip={handleSkipIntro} />
     </>
   );
 
