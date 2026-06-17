@@ -1,15 +1,9 @@
 import { Router } from "express";
 import multer from "multer";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.mjs";
+import pdfParse from "pdf-parse";
 import { analyzeDocument } from "../services/gemini.js";
 
 import { addHistoryEntry, getAllHistory } from "../utils/history.js";
-
-// In Node.js serverless environments (like Vercel), pdfjs-dist automatically
-// falls back to a "fake" worker running in the main thread if workerSrc is
-// not provided. Trying to dynamically resolve workerSrc causes Vercel builds
-// to fail due to dynamic asset tracing issues.
-GlobalWorkerOptions.workerSrc = '';
 
 const router = Router();
 
@@ -112,42 +106,20 @@ async function extractTextFromPDF(buffer) {
     throw apiError(422, "File does not appear to be a valid PDF (missing %PDF header).");
   }
 
-  // Load PDF
-  let pdf;
   try {
-    const loadingTask = getDocument({
-      data: new Uint8Array(buffer),
-      useWorkerFetch: false,
-      isEvalSupported: false,
-      useSystemFonts: true,
-    });
-    pdf = await loadingTask.promise;
+    const data = await pdfParse(buffer);
+    if (!data || !data.text) {
+      throw apiError(422, "The PDF contains no readable text.");
+    }
+    return data.text.trim();
   } catch (pdfErr) {
+    console.error("[PDF Parse Detailed Error]", pdfErr);
     const msg = pdfErr?.message ?? "";
     if (msg.toLowerCase().includes("password") || msg.toLowerCase().includes("encrypt")) {
       throw apiError(422, "The PDF is password-protected. Please upload an unlocked version.");
     }
     throw apiError(422, "Failed to parse the PDF. The file may be corrupted or use an unsupported format.");
   }
-
-  if (!pdf.numPages || pdf.numPages === 0) {
-    throw apiError(422, "The PDF contains no pages.");
-  }
-
-  // Extract text page-by-page
-  let fullText = "";
-  for (let i = 1; i <= pdf.numPages; i++) {
-    try {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      fullText += `\n${content.items.map((item) => item.str).join(" ")}`;
-    } catch {
-      // Skip unreadable individual pages rather than failing the whole document
-      console.warn(`[PDF] Skipping unreadable page ${i} of ${pdf.numPages}.`);
-    }
-  }
-
-  return fullText.trim();
 }
 
 // ── GET /api/history ──────────────────────────────────────────────────────────
