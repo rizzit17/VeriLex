@@ -8,12 +8,11 @@ import { analyzeDocument } from "../services/gemini.js";
 import { addHistoryEntry, getAllHistory } from "../utils/history.js";
 
 // ── Worker setup ──────────────────────────────────────────────────────────────
-
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-const workerPath = require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
-GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
+// In Node.js serverless environments (like Vercel), pdfjs-dist automatically
+// falls back to a "fake" worker running in the main thread if workerSrc is
+// not provided. Trying to dynamically resolve workerSrc causes Vercel builds
+// to fail due to dynamic asset tracing issues.
+GlobalWorkerOptions.workerSrc = '';
 
 const router = Router();
 
