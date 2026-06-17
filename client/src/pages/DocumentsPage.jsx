@@ -19,8 +19,8 @@ function SkeletonRow() {
   return (
     <tr>
       {[20, 14, 10, 8, 10].map((w, i) => (
-        <td key={i} style={{ padding: "16px 18px" }}>
-          <div className="vl-skeleton" style={{ height: 12, width: `${w * 4}px`, maxWidth: "100%" }} />
+        <td key={i} style={{ padding: "18px 20px" }}>
+          <div className="vl-skeleton" style={{ height: 14, width: `${w * 4}px`, maxWidth: "100%" }} />
         </td>
       ))}
     </tr>
@@ -41,19 +41,19 @@ export default function DocumentsPage({ onViewAnalysis }) {
       {/* ── Page header ─────────────────────────────────────── */}
       <header className="vl-page-header fade-up">
         <div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(224,195,154,0.1)", border: "1px solid rgba(224,195,154,0.2)", borderRadius: 99, padding: "3px 12px", marginBottom: 10 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vl-ochre)", display: "inline-block" }} />
-            <span style={{ fontSize: 11, fontWeight: 600, color: "var(--vl-ochre)", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "Montserrat, sans-serif" }}>Document Library</span>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)", borderRadius: 99, padding: "4px 14px", marginBottom: 16 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vl-ochre)", display: "inline-block", boxShadow:"0 0 8px rgba(212,175,55,0.8)" }} />
+            <span style={{ fontSize: 10, fontWeight: 600, color: "var(--vl-ochre)", letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "Montserrat, sans-serif" }}>Document Library</span>
           </div>
-          <h1 style={{ fontSize: 30, margin: "0 0 6px", lineHeight: 1.15 }}>Documents</h1>
-          <p style={{ color: "var(--vl-muted)", fontSize: 14, margin: 0 }}>
+          <h1 style={{ fontSize: 36, margin: "0 0 8px", lineHeight: 1.15, fontFamily: "'Cormorant Garamond', serif" }}>Documents</h1>
+          <p style={{ color: "var(--vl-muted)", fontSize: 15, margin: 0, fontFamily: "'Inter', sans-serif" }}>
             {loading ? "Loading..." : `${history.length} contract${history.length !== 1 ? "s" : ""} analyzed`}
           </p>
         </div>
 
         {/* Search */}
         <div style={{ position: "relative" }}>
-          <svg style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--vl-muted)", pointerEvents: "none" }} width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+          <svg style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--vl-muted)", pointerEvents: "none" }} width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
           </svg>
           <input
@@ -62,33 +62,33 @@ export default function DocumentsPage({ onViewAnalysis }) {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="vl-input"
-            style={{ paddingLeft: 36, width: 280 }}
+            style={{ paddingLeft: 42, width: 320 }}
           />
         </div>
       </header>
 
       {/* ── Table ─────────────────────────────────────────────── */}
       {!loading && filteredDocs.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "80px 20px" }}>
-          <div style={{ fontSize: 52, marginBottom: 16, opacity: 0.35 }}>📄</div>
-          <div style={{ fontSize: 20, fontWeight: 500, color: "var(--vl-text2)", marginBottom: 8, fontFamily: "'Cormorant Garamond', serif" }}>
+        <div className="fade-up delay-100" style={{ textAlign: "center", padding: "100px 20px" }}>
+          <div style={{ fontSize: 56, marginBottom: 20, opacity: 0.35 }}>📄</div>
+          <div style={{ fontSize: 22, fontWeight: 500, color: "var(--vl-text)", marginBottom: 12, fontFamily: "'Cormorant Garamond', serif" }}>
             {searchQuery ? "No documents found" : "No documents analyzed yet"}
           </div>
-          <div style={{ fontSize: 13, color: "var(--vl-muted)", fontFamily: "Montserrat, sans-serif" }}>
-            {searchQuery ? `No results for "${searchQuery}"` : "Upload a PDF contract to begin your first analysis"}
+          <div style={{ fontSize: 14, color: "var(--vl-muted)", fontFamily: "'Inter', sans-serif" }}>
+            {searchQuery ? `No results for "${searchQuery}"` : "Upload a PDF contract on the dashboard to begin your first analysis"}
           </div>
         </div>
       ) : (
-        <div style={{ background: "var(--vl-card)", border: "1px solid var(--vl-border)", borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.25)" }}>
+        <div className="fade-up delay-100 glass-panel" style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(0,0,0,0.3)" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "var(--vl-card2)", borderBottom: "1px solid var(--vl-border)" }}>
+              <tr style={{ background: "rgba(15,23,42,0.5)", borderBottom: "1px solid var(--vl-border)" }}>
                 {["Filename", "Analyzed", "Size", "Risk Level", "Clauses", "Actions"].map((h, i) => (
                   <th key={h} style={{
-                    padding: "14px 18px",
+                    padding: "16px 20px",
                     textAlign: i === 5 ? "right" : "left",
-                    fontSize: 10.5, fontWeight: 700,
-                    color: "var(--vl-muted2)", letterSpacing: "0.1em", textTransform: "uppercase",
+                    fontSize: 11, fontWeight: 700,
+                    color: "var(--vl-muted2)", letterSpacing: "0.15em", textTransform: "uppercase", fontFamily:"'Montserrat',sans-serif"
                   }}>{h}</th>
                 ))}
               </tr>
@@ -107,36 +107,36 @@ export default function DocumentsPage({ onViewAnalysis }) {
                     onMouseLeave={() => setHoveredRow(null)}
                     style={{
                       borderBottom: i < filteredDocs.length - 1 ? "1px solid var(--vl-border)" : "none",
-                      background: isHovered ? "var(--vl-card2)" : "transparent",
-                      transition: "background 0.15s ease",
+                      background: isHovered ? "rgba(255,255,255,0.03)" : "transparent",
+                      transition: "background 0.2s ease",
                     }}
                   >
-                    <td style={{ padding: "15px 18px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(224,195,154,0.1)", border: "1px solid rgba(224,195,154,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--vl-ochre)", flexShrink: 0 }}>
-                          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                    <td style={{ padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--vl-ochre)", flexShrink: 0 }}>
+                          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--vl-text2)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--vl-text)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily:"'Inter',sans-serif" }}>
                           {entry.file.originalName}
                         </span>
                       </div>
                     </td>
-                    <td style={{ padding: "15px 18px", fontSize: 13, color: "var(--vl-muted)" }}>{formatRelativeTime(entry.timestamp)}</td>
-                    <td style={{ padding: "15px 18px", fontSize: 13, color: "var(--vl-muted)" }}>{formatFileSize(entry.file.sizeBytes)}</td>
-                    <td style={{ padding: "15px 18px" }}><span className={r.cls}>{r.label}</span></td>
-                    <td style={{ padding: "15px 18px", fontSize: 13, color: clauseCount > 0 ? (risk === "HIGH" ? "#EF4444" : risk === "MEDIUM" ? "#F59E0B" : "var(--vl-muted)") : "var(--vl-muted)" }}>
+                    <td style={{ padding: "16px 20px", fontSize: 13, color: "var(--vl-muted)", fontFamily:"'Inter',sans-serif" }}>{formatRelativeTime(entry.timestamp)}</td>
+                    <td style={{ padding: "16px 20px", fontSize: 13, color: "var(--vl-muted)", fontFamily:"'Inter',sans-serif" }}>{formatFileSize(entry.file.sizeBytes)}</td>
+                    <td style={{ padding: "16px 20px" }}><span className={r.cls}>{r.label}</span></td>
+                    <td style={{ padding: "16px 20px", fontSize: 13, fontFamily:"'Inter',sans-serif", color: clauseCount > 0 ? (risk === "HIGH" ? "var(--vl-risk)" : risk === "MEDIUM" ? "var(--vl-warning)" : "var(--vl-muted)") : "var(--vl-muted)" }}>
                       {clauseCount > 0 ? `${clauseCount} flagged` : "—"}
                     </td>
-                    <td style={{ padding: "15px 18px", textAlign: "right" }}>
+                    <td style={{ padding: "16px 20px", textAlign: "right" }}>
                       <button
                         onClick={() => onViewAnalysis(entry)}
                         className="vl-btn-ghost"
-                        style={{ padding: "6px 14px", fontSize: 12 }}
+                        style={{ padding: "8px 16px", fontSize: 11 }}
                       >
                         View Analysis
-                        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                         </svg>
                       </button>

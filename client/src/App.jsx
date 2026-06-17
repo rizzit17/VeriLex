@@ -18,16 +18,12 @@ const API_URL = buildApiUrl("/api/upload");
 
 // ── Global keyframe injector ────────────────────────────────────────────────
 const GLOBAL_STYLES = `
-  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes modalIn { from{opacity:0;transform:translateY(24px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
   @keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  @keyframes introPulse { 0%,100%{opacity:0.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
   @keyframes introLogo { from{opacity:0;transform:scale(0.8) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
-  @keyframes introWord { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  .fade-up { animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes introWord { from{opacity:0;transform:translateY(15px); filter:blur(4px);} to{opacity:1;transform:translateY(0); filter:blur(0);} }
+  @keyframes modalIn { from{opacity:0;transform:translateY(30px) scale(0.95); filter:blur(10px);} to{opacity:1;transform:translateY(0) scale(1); filter:blur(0);} }
+  @keyframes scanLine { 0%{top:0; opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{top:100%; opacity:0;} }
+  .fade-up { animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both; }
 `;
 
 // ── Risk badge (corrected per-level colors) ─────────────────────────────────
@@ -40,11 +36,7 @@ function RiskBadge({ level }) {
 function LandingPage({ onSkip }) {
   const [fadeOut, setFadeOut] = useState(false);
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setFadeOut(true), 2500); // Start fading out at 2.5s
-    const t2 = setTimeout(onSkip, 3000);                 // Unmount at 3s
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [onSkip]);
+
 
   const handleEnter = () => {
     setFadeOut(true);
@@ -52,42 +44,44 @@ function LandingPage({ onSkip }) {
   };
 
   return (
-    <div style={{ position:"fixed", inset:0, backgroundImage:"url('/bg_modern.png')", backgroundSize:"cover", backgroundPosition:"center", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:9999, opacity: fadeOut ? 0 : 1, transition:"opacity 0.5s ease-out" }}>
-      <div style={{ position:"absolute", inset:0, background:"rgba(5, 5, 5, 0.85)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)" }}></div>
+    <div style={{ position:"fixed", inset:0, background:"var(--vl-bg)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:9999, opacity: fadeOut ? 0 : 1, transition:"opacity 0.5s ease-out" }}>
+      {/* Background radial glow */}
+      <div style={{ position:"absolute", top:"-20%", right:"-10%", width:"800px", height:"800px", background:"radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)", zIndex:1 }}></div>
+      <div style={{ position:"absolute", bottom:"-20%", left:"-10%", width:"800px", height:"800px", background:"radial-gradient(circle, rgba(96,165,250,0.04) 0%, transparent 70%)", zIndex:1 }}></div>
 
-      <div style={{ position:"relative", zIndex:2, display:"flex", flexDirection:"column", alignItems:"center", gap:20, textAlign:"center", padding:"0 40px", maxWidth: 800 }}>
-        <div style={{ animation:"introLogo 0.8s cubic-bezier(0.22,1,0.36,1) both", marginBottom: 10 }}>
-          <VeriLexLogo size={72} />
+      <div style={{ position:"relative", zIndex:2, display:"flex", flexDirection:"column", alignItems:"center", gap:24, textAlign:"center", padding:"0 40px", maxWidth: 860 }}>
+        <div style={{ animation:"introLogo 1s cubic-bezier(0.22,1,0.36,1) both", marginBottom: 16 }}>
+          <VeriLexLogo size={84} />
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", animation:"introWord 0.7s cubic-bezier(0.22,1,0.36,1) 0.5s both" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", animation:"introWord 0.9s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}>
           <h1 style={{
-            margin: 0, fontSize: 56, fontWeight: 400,
+            margin: 0, fontSize: 64, fontWeight: 400,
             fontFamily: "'Cormorant Garamond', serif",
             color: "var(--vl-text)",
             letterSpacing: "0.02em",
           }}>Veri</h1>
           <h1 style={{
-            margin: 0, fontSize: 50, fontWeight: 300,
+            margin: 0, fontSize: 58, fontWeight: 300,
             fontFamily: "'Montserrat', sans-serif",
             color: "var(--vl-ochre)",
             letterSpacing: "0.05em",
           }}>Lex</h1>
         </div>
-        <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:18, fontWeight:400, margin:0, color:"var(--vl-text)", letterSpacing:"0.1em", textTransform:"uppercase", animation:"introWord 0.8s cubic-bezier(0.22,1,0.36,1) 0.6s both" }}>
+        <p style={{ fontFamily:"'Montserrat',sans-serif", fontSize:18, fontWeight:300, margin:0, color:"var(--vl-muted)", letterSpacing:"0.15em", textTransform:"uppercase", animation:"introWord 0.9s cubic-bezier(0.22,1,0.36,1) 0.6s both" }}>
           AI-Powered Legal Intelligence
         </p>
         
         {/* Feature Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 12, marginBottom: 24, animation: "introWord 1s cubic-bezier(0.22,1,0.36,1) 0.8s both" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginTop: 24, marginBottom: 32, animation: "introWord 1s cubic-bezier(0.22,1,0.36,1) 0.8s both" }}>
           {[
-            { title: "Risk Assessment", desc: "Automated analysis of high-risk clauses and liabilities." },
-            { title: "Clause Extraction", desc: "Instant detection of key obligations and missing terms." },
-            { title: "Executive Reports", desc: "Generate premium PDF reports for legal teams." }
+            { title: "Risk Assessment", desc: "Automated analysis of high-risk clauses and liabilities with strict JSON verification." },
+            { title: "Clause Extraction", desc: "Instant detection of key obligations and missing standard terms." },
+            { title: "Executive Reports", desc: "Generate premium PDF reports designed for top-tier legal teams." }
           ].map((feat, i) => (
-            <div key={i} style={{ background: "rgba(20, 20, 20, 0.6)", border: "1px solid var(--vl-border)", borderRadius: 12, padding: "20px", textAlign: "left" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vl-ochre)", marginBottom: 12 }}></div>
-              <h3 style={{ margin: "0 0 8px", fontSize: 14, fontFamily: "'Montserrat', sans-serif", color: "var(--vl-text)", fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase" }}>{feat.title}</h3>
-              <p style={{ margin: 0, fontSize: 12, color: "var(--vl-muted)", lineHeight: 1.6, fontFamily: "'Montserrat', sans-serif" }}>{feat.desc}</p>
+            <div key={i} className="vl-card" style={{ padding: "24px", textAlign: "left", background: "rgba(15,23,42,0.4)" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--vl-ochre)", marginBottom: 16, boxShadow:"0 0 12px rgba(212,175,55,0.4)" }}></div>
+              <h3 style={{ margin: "0 0 10px", fontSize: 14, fontFamily: "'Montserrat', sans-serif", color: "var(--vl-text)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>{feat.title}</h3>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--vl-muted)", lineHeight: 1.6, fontFamily: "'Inter', sans-serif" }}>{feat.desc}</p>
             </div>
           ))}
         </div>
@@ -95,9 +89,9 @@ function LandingPage({ onSkip }) {
         <button 
           onClick={handleEnter}
           className="vl-btn-primary"
-          style={{ padding: "16px 36px", fontSize: 12, animation: "introWord 1s cubic-bezier(0.22,1,0.36,1) 1s both" }}
+          style={{ padding: "18px 48px", fontSize: 13, animation: "introWord 1s cubic-bezier(0.22,1,0.36,1) 1.2s both" }}
         >
-          Enter Platform →
+          Enter Platform <span style={{marginLeft:8}}>→</span>
         </button>
       </div>
     </div>
@@ -160,7 +154,7 @@ function AnalysisModal({ result, onClose }) {
   const [activeTab, setActiveTab] = useState("summary");
 
   const riskScore = risky_clauses.length === 0 ? 0 : risky_clauses.some(c => c.risk_level==="HIGH") ? 80 : risky_clauses.some(c => c.risk_level==="MEDIUM") ? 50 : 25;
-  const riskColor = riskScore >= 70 ? "#EF4444" : riskScore >= 40 ? "#F59E0B" : "#4CAF50";
+  const riskColor = riskScore >= 70 ? "var(--vl-risk)" : riskScore >= 40 ? "var(--vl-warning)" : "var(--vl-success)";
   const riskLabel = riskScore >= 70 ? "High Risk" : riskScore >= 40 ? "Medium Risk" : "Low Risk";
 
   const tabs = [
@@ -172,127 +166,134 @@ function AnalysisModal({ result, onClose }) {
   ];
 
   return (
-    <div onClick={onClose} style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.8)", backdropFilter:"blur(6px)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:"var(--vl-card)", border:"1px solid var(--vl-border)", borderRadius:22, width:"100%", maxWidth:760, maxHeight:"90vh", display:"flex", flexDirection:"column", boxShadow:"0 40px 100px rgba(0,0,0,0.8)", animation:"modalIn 0.35s cubic-bezier(0.22,1,0.36,1) both" }}>
+    <div onClick={onClose} style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(16px)", display:"flex", alignItems:"center", justifyContent:"center", padding:32 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:"var(--vl-card)", border:"1px solid var(--vl-border2)", borderRadius:24, width:"100%", maxWidth:900, height:"85vh", display:"flex", flexDirection:"column", boxShadow:"0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px var(--vl-border-gold) inset", animation:"modalIn 0.5s cubic-bezier(0.22,1,0.36,1) both", overflow:"hidden" }}>
 
         {/* Modal header */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"18px 24px", borderBottom:"1px solid var(--vl-border)", flexShrink:0 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <div style={{ width:38, height:38, borderRadius:10, background:"rgba(212,164,74,0.15)", border:"1px solid rgba(212,164,74,0.25)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--vl-ochre)" }}>
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd"/></svg>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"24px 32px", borderBottom:"1px solid var(--vl-border)", background:"rgba(15,23,42,0.4)", flexShrink:0 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+            <div style={{ width:44, height:44, borderRadius:12, background:"rgba(212,175,55,0.1)", border:"1px solid var(--vl-border-gold)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--vl-ochre)", boxShadow:"0 0 20px rgba(212,175,55,0.1)" }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd"/></svg>
             </div>
             <div>
-              <h2 style={{ margin:0, fontSize:15, color:"var(--vl-text)", fontFamily:"'Playfair Display',serif" }}>{file.originalName}</h2>
-              <p style={{ margin:0, fontSize:11, color:"var(--vl-muted)" }}>{(file.sizeBytes/1024).toFixed(1)} KB · AI Analysis Complete</p>
+              <h2 style={{ margin:"0 0 4px", fontSize:20, color:"var(--vl-text)", fontFamily:"'Cormorant Garamond',serif" }}>{file.originalName}</h2>
+              <p style={{ margin:0, fontSize:12, color:"var(--vl-muted)", fontFamily:"'Inter',sans-serif" }}>{(file.sizeBytes/1024).toFixed(1)} KB · AI Analysis Complete</p>
             </div>
           </div>
-          <button onClick={onClose} style={{ width:32, height:32, borderRadius:8, background:"var(--vl-card2)", border:"1px solid var(--vl-border)", color:"var(--vl-muted)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, transition:"all 0.15s" }}
-            onMouseEnter={e => { e.currentTarget.style.background="var(--vl-border)"; e.currentTarget.style.color="var(--vl-text)"; }}
+          <button onClick={onClose} style={{ width:36, height:36, borderRadius:10, background:"var(--vl-card2)", border:"1px solid var(--vl-border)", color:"var(--vl-muted)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, transition:"all 0.2s" }}
+            onMouseEnter={e => { e.currentTarget.style.background="var(--vl-border2)"; e.currentTarget.style.color="var(--vl-text)"; }}
             onMouseLeave={e => { e.currentTarget.style.background="var(--vl-card2)"; e.currentTarget.style.color="var(--vl-muted)"; }}
           >✕</button>
         </div>
 
-        {/* Risk score bar + stats */}
-        <div style={{ padding:"20px 24px", borderBottom:"1px solid var(--vl-border)", background:"var(--vl-card2)", flexShrink:0 }}>
-          <div style={{ display:"flex", gap:16, alignItems:"center", marginBottom:14 }}>
-            <div style={{ flex:1 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                <span style={{ fontSize:11, color:"var(--vl-muted)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em" }}>Risk Score</span>
-                <span style={{ fontSize:13, fontWeight:700, color:riskColor }}>{riskLabel}</span>
+        {/* Two-column layout for modal body */}
+        <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
+          
+          {/* Left Column: Stats & Risk */}
+          <div style={{ width: 280, borderRight:"1px solid var(--vl-border)", background:"rgba(30,41,59,0.2)", display:"flex", flexDirection:"column", padding:"24px" }}>
+            <div style={{ marginBottom:32 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
+                <span style={{ fontSize:11, color:"var(--vl-muted)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.1em" }}>Risk Assessment</span>
               </div>
-              <div style={{ height:8, background:"var(--vl-border)", borderRadius:99, overflow:"hidden" }}>
-                <div style={{ height:"100%", width:`${riskScore}%`, background:`linear-gradient(90deg,${riskColor}88,${riskColor})`, borderRadius:99, transition:"width 1s cubic-bezier(0.4,0,0.2,1)" }} />
+              <div style={{ fontSize:28, fontWeight:600, fontFamily:"'Cormorant Garamond',serif", color:riskColor, marginBottom:12 }}>{riskLabel}</div>
+              <div style={{ height:6, background:"var(--vl-card-solid)", borderRadius:99, overflow:"hidden", boxShadow:"inset 0 1px 3px rgba(0,0,0,0.5)" }}>
+                <div style={{ height:"100%", width:`${riskScore}%`, background:`linear-gradient(90deg, transparent, ${riskColor})`, borderRadius:99, transition:"width 1s cubic-bezier(0.4,0,0.2,1)" }} />
               </div>
             </div>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10 }}>
-            {[
-              { label:"Obligations", value:key_obligations.length, color:"var(--vl-ochre)" },
-              { label:"Risky Clauses", value:risky_clauses.length, color:"#EF4444" },
-              { label:"Missing", value:missing_clauses.length, color:"#F59E0B" },
-              { label:"Suggestions", value:suggestions.length, color:"#4CAF50" },
-            ].map(({ label, value, color }) => (
-              <div key={label} style={{ textAlign:"center", padding:"10px 8px", background:"var(--vl-card)", border:"1px solid var(--vl-border)", borderRadius:10 }}>
-                <div style={{ fontSize:24, fontWeight:800, color, fontFamily:"'Playfair Display',serif", lineHeight:1 }}>{value}</div>
-                <div style={{ fontSize:9.5, color:"var(--vl-muted)", marginTop:3, textTransform:"uppercase", letterSpacing:"0.06em" }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Tabs */}
-        <div style={{ display:"flex", gap:2, padding:"0 24px", borderBottom:"1px solid var(--vl-border)", flexShrink:0, overflowX:"auto" }}>
-          {tabs.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              style={{ padding:"12px 14px", background:"transparent", border:"none", borderBottom:`2px solid ${activeTab===tab.id ? "var(--vl-ochre)" : "transparent"}`, color: activeTab===tab.id ? "var(--vl-ochre)" : "var(--vl-muted)", fontSize:12, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap", transition:"color 0.15s", fontFamily:"Inter,sans-serif" }}>
-              {tab.label}
-              {tab.count !== null && <span style={{ background: activeTab===tab.id ? "rgba(212,164,74,0.15)" : "var(--vl-card2)", color: activeTab===tab.id ? "var(--vl-ochre)" : "var(--vl-muted2)", padding:"1px 6px", borderRadius:99, fontSize:10, fontWeight:700 }}>{tab.count}</span>}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab body */}
-        <div style={{ overflowY:"auto", padding:"20px 24px", flex:1 }}>
-          {activeTab === "summary" && (
-            <div style={{ background:"var(--vl-card2)", border:"1px solid var(--vl-border)", borderLeft:"3px solid var(--vl-ochre)", borderRadius:"0 12px 12px 0", padding:"16px 18px" }}>
-              <p style={{ margin:0, fontSize:14, color:"var(--vl-text2)", lineHeight:1.75 }}>{summary}</p>
-            </div>
-          )}
-          {activeTab === "obligations" && (
-            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-              {key_obligations.length === 0 ? <EmptyState label="No obligations detected" /> : key_obligations.map((o, i) => (
-                <div key={i} style={{ display:"flex", gap:10, padding:"10px 14px", background:"var(--vl-card2)", border:"1px solid var(--vl-border)", borderRadius:10 }}>
-                  <span style={{ width:5, height:5, borderRadius:"50%", background:"var(--vl-ochre)", flexShrink:0, marginTop:6 }} />
-                  <span style={{ fontSize:13, color:"var(--vl-text2)", lineHeight:1.6 }}>{o}</span>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              {[
+                { label:"Obligations", value:key_obligations.length, color:"var(--vl-ochre)" },
+                { label:"Risky Clauses", value:risky_clauses.length, color:"var(--vl-risk)" },
+                { label:"Missing Terms", value:missing_clauses.length, color:"var(--vl-warning)" },
+                { label:"Suggestions", value:suggestions.length, color:"var(--vl-success)" },
+              ].map(({ label, value, color }) => (
+                <div key={label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"12px 16px", background:"var(--vl-card)", border:"1px solid var(--vl-border)", borderRadius:12 }}>
+                  <span style={{ fontSize:12, color:"var(--vl-text2)", fontWeight:500 }}>{label}</span>
+                  <span style={{ fontSize:16, fontWeight:700, color, fontFamily:"'Inter',sans-serif" }}>{value}</span>
                 </div>
               ))}
             </div>
-          )}
-          {activeTab === "risky" && (
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              {risky_clauses.length === 0 ? <EmptyState label="No risky clauses detected" /> : risky_clauses.map((c, i) => {
-                const lc = c.risk_level;
-                const borderC = lc==="HIGH" ? "#EF4444" : lc==="MEDIUM" ? "#F59E0B" : "#4CAF50";
-                return (
-                  <div key={i} style={{ padding:"12px 14px", background:"var(--vl-card2)", borderLeft:`3px solid ${borderC}`, borderRadius:"0 10px 10px 0", border:"1px solid var(--vl-border)", borderLeftWidth:3 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
-                      <RiskBadge level={lc} />
-                      <span style={{ fontSize:13, fontWeight:600, color:"var(--vl-text)" }}>{c.clause}</span>
+          </div>
+
+          {/* Right Column: Tabs & Content */}
+          <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
+            <div style={{ display:"flex", gap:4, padding:"0 32px", borderBottom:"1px solid var(--vl-border)", flexShrink:0, background:"rgba(15,23,42,0.4)", overflowX:"auto" }}>
+              {tabs.map(tab => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  style={{ padding:"16px 8px", margin:"0 12px", background:"transparent", border:"none", borderBottom:`2px solid ${activeTab===tab.id ? "var(--vl-ochre)" : "transparent"}`, color: activeTab===tab.id ? "var(--vl-text)" : "var(--vl-muted)", fontSize:13, fontWeight:activeTab===tab.id ? 600 : 500, cursor:"pointer", display:"flex", alignItems:"center", gap:8, whiteSpace:"nowrap", transition:"all 0.2s", fontFamily:"'Inter',sans-serif" }}>
+                  {tab.label}
+                  {tab.count !== null && <span style={{ background: activeTab===tab.id ? "rgba(212,175,55,0.15)" : "var(--vl-card2)", color: activeTab===tab.id ? "var(--vl-ochre)" : "var(--vl-muted)", padding:"2px 8px", borderRadius:99, fontSize:10, fontWeight:700 }}>{tab.count}</span>}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ overflowY:"auto", padding:"32px", flex:1, background:"transparent" }}>
+              {activeTab === "summary" && (
+                <div className="fade-up" style={{ background:"var(--vl-card2)", border:"1px solid var(--vl-border)", borderLeft:"4px solid var(--vl-ochre)", borderRadius:"8px", padding:"24px" }}>
+                  <h3 style={{ margin:"0 0 16px", fontSize:18, color:"var(--vl-text)", fontFamily:"'Cormorant Garamond',serif" }}>Document Summary</h3>
+                  <p style={{ margin:0, fontSize:15, color:"var(--vl-text2)", lineHeight:1.8, fontFamily:"'Inter',sans-serif" }}>{summary}</p>
+                </div>
+              )}
+              {activeTab === "obligations" && (
+                <div className="fade-up" style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  {key_obligations.length === 0 ? <EmptyState label="No obligations detected" /> : key_obligations.map((o, i) => (
+                    <div key={i} className="vl-card" style={{ display:"flex", gap:16, padding:"16px 20px" }}>
+                      <span style={{ width:6, height:6, borderRadius:"50%", background:"var(--vl-ochre)", flexShrink:0, marginTop:8, boxShadow:"0 0 8px rgba(212,175,55,0.5)" }} />
+                      <span style={{ fontSize:14, color:"var(--vl-text2)", lineHeight:1.6 }}>{o}</span>
                     </div>
-                    <p style={{ margin:0, fontSize:12, color:"var(--vl-muted)", lineHeight:1.6 }}>{c.reason}</p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          {activeTab === "missing" && (
-            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-              {missing_clauses.length === 0 ? <EmptyState label="No missing clauses identified" /> : missing_clauses.map((m, i) => (
-                <div key={i} style={{ display:"flex", gap:10, padding:"10px 14px", background:"rgba(245,158,11,0.06)", border:"1px solid rgba(245,158,11,0.15)", borderRadius:10 }}>
-                  <span style={{ width:5, height:5, borderRadius:"50%", background:"#F59E0B", flexShrink:0, marginTop:6 }} />
-                  <span style={{ fontSize:13, color:"var(--vl-text2)", lineHeight:1.6 }}>{m}</span>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-          {activeTab === "suggestions" && (
-            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-              {suggestions.length === 0 ? <EmptyState label="No suggestions available" /> : suggestions.map((s, i) => (
-                <div key={i} style={{ display:"flex", gap:10, padding:"10px 14px", background:"rgba(76,175,80,0.06)", border:"1px solid rgba(76,175,80,0.15)", borderRadius:10 }}>
-                  <span style={{ width:5, height:5, borderRadius:"50%", background:"#4CAF50", flexShrink:0, marginTop:6 }} />
-                  <span style={{ fontSize:13, color:"var(--vl-text2)", lineHeight:1.6 }}>{s}</span>
+              )}
+              {activeTab === "risky" && (
+                <div className="fade-up" style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                  {risky_clauses.length === 0 ? <EmptyState label="No risky clauses detected" /> : risky_clauses.map((c, i) => {
+                    const lc = c.risk_level;
+                    const borderC = lc==="HIGH" ? "var(--vl-risk)" : lc==="MEDIUM" ? "var(--vl-warning)" : "var(--vl-success)";
+                    const bgC = lc==="HIGH" ? "rgba(248,113,113,0.05)" : lc==="MEDIUM" ? "rgba(251,191,36,0.05)" : "rgba(52,211,153,0.05)";
+                    return (
+                      <div key={i} style={{ padding:"20px", background:bgC, borderLeft:`4px solid ${borderC}`, borderRadius:"8px", borderRight:"1px solid var(--vl-border)", borderTop:"1px solid var(--vl-border)", borderBottom:"1px solid var(--vl-border)" }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+                          <RiskBadge level={lc} />
+                          <span style={{ fontSize:14, fontWeight:600, color:"var(--vl-text)", fontFamily:"'Inter',sans-serif" }}>{c.clause}</span>
+                        </div>
+                        <p style={{ margin:0, fontSize:13, color:"var(--vl-muted)", lineHeight:1.6 }}>{c.reason}</p>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
+              {activeTab === "missing" && (
+                <div className="fade-up" style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  {missing_clauses.length === 0 ? <EmptyState label="No missing clauses identified" /> : missing_clauses.map((m, i) => (
+                    <div key={i} className="vl-card" style={{ display:"flex", gap:16, padding:"16px 20px" }}>
+                      <span style={{ width:6, height:6, borderRadius:"50%", background:"var(--vl-warning)", flexShrink:0, marginTop:8 }} />
+                      <span style={{ fontSize:14, color:"var(--vl-text2)", lineHeight:1.6 }}>{m}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {activeTab === "suggestions" && (
+                <div className="fade-up" style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  {suggestions.length === 0 ? <EmptyState label="No suggestions available" /> : suggestions.map((s, i) => (
+                    <div key={i} className="vl-card" style={{ display:"flex", gap:16, padding:"16px 20px" }}>
+                      <span style={{ width:6, height:6, borderRadius:"50%", background:"var(--vl-success)", flexShrink:0, marginTop:8 }} />
+                      <span style={{ fontSize:14, color:"var(--vl-text2)", lineHeight:1.6 }}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
+
       </div>
     </div>
   );
 }
 
 function EmptyState({ label }) {
-  return <div style={{ textAlign:"center", padding:"32px 20px", color:"var(--vl-muted)", fontSize:13 }}>{label}</div>;
+  return <div style={{ textAlign:"center", padding:"48px 20px", color:"var(--vl-muted)", fontSize:14, fontFamily:"'Inter',sans-serif", border:"1px dashed var(--vl-border2)", borderRadius:12 }}>{label}</div>;
 }
 
 // ── Drag-and-drop upload zone ───────────────────────────────────────────────
@@ -323,29 +324,35 @@ function DropZone({ onResult }) {
       onDragLeave={() => setDragging(false)}
       onDrop={onDrop}
       onClick={() => !loading && ref.current?.click()}
+      className="vl-card"
       style={{
-        border: `2px dashed ${dragging ? "var(--vl-ochre)" : loading ? "rgba(212,164,74,0.3)" : "var(--vl-border2)"}`,
-        borderRadius: 16, padding: "36px 24px", textAlign:"center",
-        background: dragging ? "rgba(212,164,74,0.06)" : "rgba(53,40,32,0.4)",
+        position: "relative",
+        border: `2px dashed ${dragging ? "var(--vl-ochre)" : loading ? "var(--vl-border-gold)" : "var(--vl-border2)"}`,
+        padding: "48px 24px", textAlign:"center",
+        background: dragging ? "rgba(212,175,55,0.05)" : "var(--vl-card)",
         cursor: loading ? "default" : "pointer",
-        transition:"all 0.2s cubic-bezier(0.4,0,0.2,1)",
-        boxShadow: dragging ? "0 0 0 4px rgba(212,164,74,0.12)" : "none",
-        marginBottom: 32,
+        transition:"all 0.3s cubic-bezier(0.4,0,0.2,1)",
+        boxShadow: dragging ? "0 0 24px rgba(212,175,55,0.15) inset" : "none",
+        marginBottom: 40,
+        overflow: "hidden"
       }}
     >
-      <input ref={ref} type="file" accept=".pdf,application/pdf" style={{display:"none"}} onChange={onInputChange} />
-      <div style={{ fontSize:36, marginBottom:12, opacity: dragging ? 1 : 0.5 }}>{loading ? "⏳" : dragging ? "📂" : "📄"}</div>
-      <p style={{ margin:"0 0 4px", fontSize:14, fontWeight:600, color:"var(--vl-text2)" }}>
-        {loading ? "Analyzing document…" : dragging ? "Drop your PDF here" : "Drag & drop a PDF contract"}
-      </p>
-      <p style={{ margin:0, fontSize:12, color:"var(--vl-muted)" }}>
-        {loading ? "Please wait while AI processes your contract" : "or click to browse files · PDF only"}
-      </p>
       {loading && (
-        <div style={{ marginTop:16, display:"flex", justifyContent:"center" }}>
-          <span style={{width:18,height:18,border:"2px solid rgba(212,164,74,0.2)",borderTop:"2px solid var(--vl-ochre)",borderRadius:"50%",display:"inline-block",animation:"spin 0.8s linear infinite"}} />
-        </div>
+        <div style={{ position:"absolute", left:0, right:0, height:2, background:"var(--vl-ochre)", animation:"scanLine 2s linear infinite", zIndex:0, boxShadow:"0 0 10px var(--vl-ochre)" }}></div>
       )}
+      
+      <div style={{ position:"relative", zIndex:1 }}>
+        <input ref={ref} type="file" accept=".pdf,application/pdf" style={{display:"none"}} onChange={onInputChange} />
+        <div style={{ fontSize:42, marginBottom:16, opacity: dragging ? 1 : 0.8, filter: dragging ? "drop-shadow(0 0 10px rgba(212,175,55,0.5))" : "none", transition:"all 0.3s" }}>
+          {loading ? "⏳" : dragging ? "📂" : "📄"}
+        </div>
+        <h3 style={{ margin:"0 0 8px", fontSize:18, fontWeight:500, color:"var(--vl-text)", fontFamily:"'Cormorant Garamond',serif" }}>
+          {loading ? "Analyzing Document Architecture…" : dragging ? "Drop PDF to Analyze" : "Upload Legal Document"}
+        </h3>
+        <p style={{ margin:0, fontSize:13, color:"var(--vl-muted)", fontFamily:"'Inter',sans-serif" }}>
+          {loading ? "Our AI engine is currently processing the legal structure." : "Drag & drop your PDF contract, or click to browse files"}
+        </p>
+      </div>
     </div>
   );
 }
@@ -357,16 +364,16 @@ function DashboardPage({ onViewAnalysis, onUploadResult }) {
       {/* Header with upload button */}
       <header className="vl-page-header fade-up">
         <div>
-          <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(212,164,74,0.1)", border:"1px solid rgba(212,164,74,0.2)", borderRadius:99, padding:"3px 12px", marginBottom:10 }}>
-            <span style={{ width:6, height:6, borderRadius:"50%", background:"var(--vl-ochre)", display:"inline-block" }} />
-            <span style={{ fontSize:11, fontWeight:600, color:"var(--vl-ochre)", letterSpacing:"0.08em", textTransform:"uppercase" }}>Live Overview</span>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(212,175,55,0.1)", border:"1px solid var(--vl-border-gold)", borderRadius:99, padding:"4px 14px", marginBottom:16 }}>
+            <span style={{ width:6, height:6, borderRadius:"50%", background:"var(--vl-ochre)", display:"inline-block", boxShadow:"0 0 8px rgba(212,175,55,0.8)" }} />
+            <span style={{ fontSize:10, fontWeight:600, color:"var(--vl-ochre)", letterSpacing:"0.15em", textTransform:"uppercase" }}>Live Overview</span>
           </div>
-          <h1 style={{ fontSize:30, margin:"0 0 6px", lineHeight:1.15 }}>Dashboard</h1>
-          <p style={{ color:"var(--vl-muted)", fontSize:14, margin:0 }}>Monitor your legal document analysis in real-time</p>
+          <h1 style={{ fontSize:36, margin:"0 0 8px", lineHeight:1.15, fontFamily:"'Cormorant Garamond',serif" }}>Dashboard</h1>
+          <p style={{ color:"var(--vl-muted)", fontSize:15, margin:0, fontFamily:"'Inter',sans-serif" }}>Monitor your legal document analysis and risk metrics.</p>
         </div>
-        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-          <button onClick={() => window.location.reload()} className="vl-btn-ghost" style={{ padding:"9px 16px" }}>
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path fillRule="evenodd" d="M8 3a5 5 0 104.546 2.914.5.5 0 00-.908-.417A4 4 0 118 4v1H6.5a.5.5 0 000 1H9a.5.5 0 00.5-.5V2.5a.5.5 0 00-1 0V3z" clipRule="evenodd"/></svg>
+        <div style={{ display:"flex", gap:12, alignItems:"center" }}>
+          <button onClick={() => window.location.reload()} className="vl-btn-ghost" style={{ padding:"10px 18px" }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path fillRule="evenodd" d="M8 3a5 5 0 104.546 2.914.5.5 0 00-.908-.417A4 4 0 118 4v1H6.5a.5.5 0 000 1H9a.5.5 0 00.5-.5V2.5a.5.5 0 00-1 0V3z" clipRule="evenodd"/></svg>
             Refresh
           </button>
           <UploadButton onResult={onUploadResult} />
@@ -374,19 +381,23 @@ function DashboardPage({ onViewAnalysis, onUploadResult }) {
       </header>
 
       {/* Drag-and-drop zone */}
-      <DropZone onResult={onUploadResult} />
+      <div className="fade-up delay-100">
+        <DropZone onResult={onUploadResult} />
+      </div>
 
       {/* KPI Cards */}
-      <StatsGrid />
+      <div className="fade-up delay-200">
+        <StatsGrid />
+      </div>
 
       {/* Section divider */}
-      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
-        <span style={{ fontSize:11, fontWeight:700, color:"var(--vl-muted2)", letterSpacing:"0.1em", textTransform:"uppercase" }}>Activity & Insights</span>
+      <div className="fade-up delay-300" style={{ display:"flex", alignItems:"center", gap:16, margin:"48px 0 24px" }}>
+        <span style={{ fontSize:12, fontWeight:600, color:"var(--vl-muted)", letterSpacing:"0.15em", textTransform:"uppercase", fontFamily:"'Montserrat',sans-serif" }}>Activity & Insights</span>
         <div style={{ flex:1, height:1, background:"var(--vl-border)" }} />
       </div>
 
       {/* Grid widgets */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(360px,1fr))", gap:20 }}>
+      <div className="fade-up delay-400" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(380px,1fr))", gap:24 }}>
         <RecentDocuments onViewAnalysis={onViewAnalysis} />
         <RiskAnalysis />
         <ActivityFeed />
@@ -427,7 +438,7 @@ export default function App() {
       <Notifications />
       {analysisResult && <AnalysisModal result={analysisResult} onClose={() => setAnalysisResult(null)} />}
 
-      <div style={{ display:"flex", minHeight:"100vh", background:"var(--vl-bg)" }}>
+      <div style={{ display:"flex", minHeight:"100vh", background:"transparent" }}>
         <Sidebar activePage={activePage} setActivePage={setActivePage} />
         {activePage === "dashboard"  && <DashboardPage onViewAnalysis={handleViewAnalysis} onUploadResult={handleUploadResult} />}
         {activePage === "documents"  && <DocumentsPage onViewAnalysis={handleViewAnalysis} />}

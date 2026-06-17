@@ -41,22 +41,27 @@ function buildClauseFreq(history) {
 }
 
 const chartTooltipStyle = {
-  backgroundColor: "var(--vl-card)",
+  backgroundColor: "var(--vl-card2)",
   border: "1px solid var(--vl-border)",
-  borderRadius: 0,
+  borderRadius: 8,
   color: "var(--vl-text)",
-  fontSize: 11,
-  fontFamily: "Montserrat, sans-serif",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+  fontSize: 12,
+  fontFamily: "'Inter', sans-serif",
+  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
 };
 
-function KpiCard({ label, value, sub, accent, icon }) {
+function KpiCard({ label, value, sub, accent, delayIndex }) {
   return (
-    <div style={{ background: "var(--vl-card)", border: "1px solid var(--vl-border)", borderRadius: 16, padding: "22px 24px", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent }} />
-      <div style={{ fontSize: 11, color: "var(--vl-muted)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8, fontFamily: "Montserrat, sans-serif" }}>{label}</div>
-      <div style={{ fontSize: 34, fontWeight: 500, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif", lineHeight: 1, marginBottom: 8 }}>{value}</div>
-      <div style={{ fontSize: 11, color: "var(--vl-muted)", fontFamily: "Montserrat, sans-serif" }}>{sub}</div>
+    <div className="glass-panel" style={{ 
+      borderRadius: 16, padding: "24px 28px", position: "relative", overflow: "hidden",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+      animation: `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${delayIndex * 100}ms both`
+    }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: accent, opacity: 0.6 }} />
+      <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, background: accent, filter: "blur(40px)", opacity: 0.1 }} />
+      <div style={{ fontSize: 11, color: "var(--vl-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12, fontFamily: "'Montserrat', sans-serif" }}>{label}</div>
+      <div style={{ fontSize: 38, fontWeight: 500, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif", lineHeight: 1, marginBottom: 10 }}>{value}</div>
+      <div style={{ fontSize: 12, color: "var(--vl-muted)", fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>{sub}</div>
     </div>
   );
 }
@@ -76,90 +81,90 @@ export default function AnalyticsPage() {
   const clauseFreq  = buildClauseFreq(history);
 
   const pieData = [
-    { name: "High",   value: riskCounts.HIGH,   color: "#EF4444" },
-    { name: "Medium", value: riskCounts.MEDIUM, color: "#F59E0B" },
-    { name: "Low",    value: riskCounts.LOW,    color: "#4CAF50" },
+    { name: "High Risk",   value: riskCounts.HIGH,   color: "var(--vl-risk)" },
+    { name: "Medium Risk", value: riskCounts.MEDIUM, color: "var(--vl-warning)" },
+    { name: "Low Risk",    value: riskCounts.LOW,    color: "var(--vl-success)" },
   ].filter(d => d.value > 0);
 
   const commonRisk = riskCounts.HIGH > 0 ? "HIGH" : riskCounts.MEDIUM > 0 ? "MEDIUM" : "LOW";
   const commonRiskLabel = { HIGH: "High Risk", MEDIUM: "Medium Risk", LOW: "Low Risk" }[commonRisk];
-  const commonRiskColor = { HIGH: "#EF4444", MEDIUM: "#F59E0B", LOW: "#4CAF50" }[commonRisk];
+  const commonRiskColor = { HIGH: "var(--vl-risk)", MEDIUM: "var(--vl-warning)", LOW: "var(--vl-success)" }[commonRisk];
 
   return (
     <div className="vl-page">
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className="vl-page-header fade-up">
         <div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(212,164,74,0.1)", border: "1px solid rgba(212,164,74,0.2)", borderRadius: 99, padding: "3px 12px", marginBottom: 10 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vl-ochre)", display: "inline-block" }} />
-            <span style={{ fontSize: 11, fontWeight: 600, color: "var(--vl-ochre)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Intelligence Center</span>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)", borderRadius: 99, padding: "4px 14px", marginBottom: 16 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vl-ochre)", display: "inline-block", boxShadow:"0 0 8px rgba(212,175,55,0.8)" }} />
+            <span style={{ fontSize: 10, fontWeight: 600, color: "var(--vl-ochre)", letterSpacing: "0.15em", textTransform: "uppercase", fontFamily:"'Montserrat',sans-serif" }}>Intelligence Center</span>
           </div>
-          <h1 style={{ fontSize: 30, margin: "0 0 6px", lineHeight: 1.15 }}>Analytics</h1>
-          <p style={{ color: "var(--vl-muted)", fontSize: 14, margin: 0 }}>Insights and trends from your contract analysis</p>
+          <h1 style={{ fontSize: 36, margin: "0 0 8px", lineHeight: 1.15, fontFamily: "'Cormorant Garamond', serif" }}>Analytics</h1>
+          <p style={{ color: "var(--vl-muted)", fontSize: 15, margin: 0, fontFamily:"'Inter', sans-serif" }}>Insights and trends from your contract analysis</p>
         </div>
       </header>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "80px 20px", color: "var(--vl-muted)", fontSize: 14 }}>Loading analytics…</div>
+        <div className="fade-up delay-100" style={{ textAlign: "center", padding: "100px 20px", color: "var(--vl-muted)", fontSize: 15 }}>Loading analytics…</div>
       ) : history.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "80px 20px" }}>
-          <div style={{ fontSize: 52, marginBottom: 16, opacity: 0.35 }}>📊</div>
-          <div style={{ fontSize: 20, fontWeight: 500, color: "var(--vl-text2)", marginBottom: 8, fontFamily: "'Cormorant Garamond', serif" }}>No analytics yet</div>
-          <div style={{ fontSize: 13, color: "var(--vl-muted)", fontFamily: "Montserrat, sans-serif" }}>Upload documents to generate insights</div>
+        <div className="fade-up delay-100" style={{ textAlign: "center", padding: "100px 20px" }}>
+          <div style={{ fontSize: 56, marginBottom: 20, opacity: 0.35 }}>📊</div>
+          <div style={{ fontSize: 22, fontWeight: 500, color: "var(--vl-text)", marginBottom: 12, fontFamily: "'Cormorant Garamond', serif" }}>No analytics yet</div>
+          <div style={{ fontSize: 14, color: "var(--vl-muted)", fontFamily: "'Inter', sans-serif" }}>Upload documents to generate AI insights</div>
         </div>
       ) : (
         <>
           {/* ── KPI cards ──────────────────────────────────────── */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 28 }}>
-            <KpiCard label="Total Documents" value={totalDocs} sub="All time" accent="var(--vl-ochre)" />
-            <KpiCard label="Avg Risky Clauses" value={avgRisky} sub="Per document" accent="#F59E0B" />
-            <KpiCard label="High Risk Docs" value={riskCounts.HIGH} sub="Needs review" accent="#EF4444" />
-            <KpiCard label="Predominant Risk" value={commonRiskLabel} sub={`${riskCounts[commonRisk]} documents`} accent={`linear-gradient(90deg,${commonRiskColor},${commonRiskColor}88)`} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 24, marginBottom: 32 }}>
+            <KpiCard label="Total Documents" value={totalDocs} sub="All time" accent="var(--vl-ochre)" delayIndex={1} />
+            <KpiCard label="Avg Risky Clauses" value={avgRisky} sub="Per document" accent="var(--vl-warning)" delayIndex={2} />
+            <KpiCard label="High Risk Docs" value={riskCounts.HIGH} sub="Needs review" accent="var(--vl-risk)" delayIndex={3} />
+            <KpiCard label="Predominant Risk" value={commonRiskLabel} sub={`${riskCounts[commonRisk]} documents`} accent={`linear-gradient(90deg,${commonRiskColor}, transparent)`} delayIndex={4} />
           </div>
 
           {/* ── Charts row ─────────────────────────────────────── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 24, marginBottom: 24 }}>
 
             {/* Area chart — 7-day trend */}
-            <div style={{ background: "var(--vl-card)", border: "1px solid var(--vl-border)", borderRadius: 0, padding: "24px 26px", boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
-              <h3 style={{ margin: "0 0 4px", fontSize: 18, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>Analysis Trends</h3>
-              <p style={{ margin: "0 0 20px", fontSize: 11, color: "var(--vl-muted)", fontFamily: "Montserrat, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase" }}>Documents analyzed — last 7 days</p>
-              <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={trendData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <div className="glass-panel fade-up delay-500" style={{ borderRadius: 20, padding: "32px", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+              <h3 style={{ margin: "0 0 4px", fontSize: 20, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>Analysis Trends</h3>
+              <p style={{ margin: "0 0 24px", fontSize: 12, color: "var(--vl-muted)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>Documents analyzed — last 7 days</p>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="ochreGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#E0C39A" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#E0C39A" stopOpacity={0} />
+                      <stop offset="5%"  stopColor="var(--vl-ochre)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--vl-ochre)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid stroke="var(--vl-border)" strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fill: "var(--vl-muted)", fontSize: 10, fontFamily: "Montserrat, sans-serif" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "var(--vl-muted)", fontSize: 10, fontFamily: "Montserrat, sans-serif" }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={chartTooltipStyle} cursor={{ stroke: "rgba(224,195,154,0.2)" }} />
-                  <Area type="monotone" dataKey="docs" stroke="var(--vl-ochre)" strokeWidth={1.5} fill="url(#ochreGrad)" dot={{ fill: "var(--vl-ochre)", r: 2 }} activeDot={{ r: 4, fill: "var(--vl-text)" }} />
+                  <XAxis dataKey="day" tick={{ fill: "var(--vl-muted)", fontSize: 11, fontFamily: "'Inter', sans-serif" }} axisLine={false} tickLine={false} dy={10} />
+                  <YAxis tick={{ fill: "var(--vl-muted)", fontSize: 11, fontFamily: "'Inter', sans-serif" }} axisLine={false} tickLine={false} allowDecimals={false} dx={-10} />
+                  <Tooltip contentStyle={chartTooltipStyle} cursor={{ stroke: "rgba(212,175,55,0.2)" }} />
+                  <Area type="monotone" dataKey="docs" stroke="var(--vl-ochre)" strokeWidth={2} fill="url(#ochreGrad)" dot={{ fill: "var(--vl-ochre)", r: 4, strokeWidth:2, stroke:"var(--vl-bg)" }} activeDot={{ r: 6, fill: "var(--vl-text)", stroke:"var(--vl-ochre)" }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
 
             {/* Pie chart — risk distribution */}
-            <div style={{ background: "var(--vl-card)", border: "1px solid var(--vl-border)", borderRadius: 0, padding: "24px 26px", boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
-              <h3 style={{ margin: "0 0 4px", fontSize: 18, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>Risk Distribution</h3>
-              <p style={{ margin: "0 0 8px", fontSize: 11, color: "var(--vl-muted)", fontFamily: "Montserrat, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase" }}>Overall portfolio risk breakdown</p>
-              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                <ResponsiveContainer width={160} height={160}>
+            <div className="glass-panel fade-up delay-500" style={{ borderRadius: 20, padding: "32px", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+              <h3 style={{ margin: "0 0 4px", fontSize: 20, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>Risk Distribution</h3>
+              <p style={{ margin: "0 0 16px", fontSize: 12, color: "var(--vl-muted)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>Overall portfolio breakdown</p>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+                <ResponsiveContainer width={180} height={180}>
                   <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="value" strokeWidth={0}>
                       {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                     </Pie>
                     <Tooltip contentStyle={chartTooltipStyle} />
                   </PieChart>
                 </ResponsiveContainer>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", padding:"0 10px" }}>
                   {pieData.map(d => (
-                    <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: 3, background: d.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, color: "var(--vl-text2)", fontWeight: 500, fontFamily: "Montserrat, sans-serif" }}>{d.name}</span>
-                      <span style={{ fontSize: 12, fontWeight: 500, color: d.color, marginLeft: "auto", fontFamily: "Montserrat, sans-serif" }}>{d.value}</span>
+                    <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ width: 12, height: 12, borderRadius: 4, background: d.color, flexShrink: 0, boxShadow:`0 0 8px ${d.color}60` }} />
+                      <span style={{ fontSize: 13, color: "var(--vl-text2)", fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>{d.name}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: d.color, marginLeft: "auto", fontFamily: "'Inter', sans-serif" }}>{d.value}</span>
                     </div>
                   ))}
                 </div>
@@ -169,18 +174,18 @@ export default function AnalyticsPage() {
 
           {/* ── Clause frequency bar chart ─────────────────────── */}
           {clauseFreq.length > 0 && (
-            <div style={{ background: "var(--vl-card)", border: "1px solid var(--vl-border)", borderRadius: 0, padding: "24px 26px", marginBottom: 20, boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
-              <h3 style={{ margin: "0 0 4px", fontSize: 18, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>Top Flagged Clauses</h3>
-              <p style={{ margin: "0 0 20px", fontSize: 11, color: "var(--vl-muted)", fontFamily: "Montserrat, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase" }}>Most frequently detected risky clauses</p>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={clauseFreq} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
+            <div className="glass-panel fade-up delay-500" style={{ borderRadius: 20, padding: "32px", marginBottom: 24, boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+              <h3 style={{ margin: "0 0 4px", fontSize: 20, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>Top Flagged Clauses</h3>
+              <p style={{ margin: "0 0 24px", fontSize: 12, color: "var(--vl-muted)", fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600 }}>Most frequently detected risky clauses</p>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={clauseFreq} layout="vertical" margin={{ top: 0, right: 20, left: 20, bottom: 0 }}>
                   <CartesianGrid stroke="var(--vl-border)" strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" tick={{ fill: "var(--vl-muted)", fontSize: 10, fontFamily: "Montserrat, sans-serif" }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fill: "var(--vl-muted)", fontSize: 10, fontFamily: "Montserrat, sans-serif" }} axisLine={false} tickLine={false} width={130} />
-                  <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: "rgba(224,195,154,0.05)" }} />
-                  <Bar dataKey="count" radius={[0, 2, 2, 0]} maxBarSize={16}>
+                  <XAxis type="number" tick={{ fill: "var(--vl-muted)", fontSize: 11, fontFamily: "'Inter', sans-serif" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fill: "var(--vl-muted)", fontSize: 11, fontFamily: "'Inter', sans-serif" }} axisLine={false} tickLine={false} width={160} />
+                  <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+                  <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={20}>
                     {clauseFreq.map((entry, i) => (
-                      <Cell key={i} fill={i === 0 ? "#EF4444" : i === 1 ? "#F59E0B" : "var(--vl-ochre)"} fillOpacity={0.85} />
+                      <Cell key={i} fill={i === 0 ? "var(--vl-risk)" : i === 1 ? "var(--vl-warning)" : "var(--vl-ochre)"} fillOpacity={0.9} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -189,21 +194,21 @@ export default function AnalyticsPage() {
           )}
 
           {/* ── AI Insights box ────────────────────────────────── */}
-          <div style={{ background: "transparent", borderTop: "1px solid var(--vl-border)", borderBottom: "1px solid var(--vl-border)", padding: "30px 0", marginTop: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 18, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>AI Insights</h3>
+          <div className="fade-up delay-500" style={{ background: "rgba(212,175,55,0.03)", border: "1px solid var(--vl-border-gold)", borderRadius:20, padding: "32px", marginTop: 24, boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--vl-ochre)" style={{ filter:"drop-shadow(0 0 8px rgba(212,175,55,0.6))" }}>
+                <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 110-2 1 1 0 010 2z" clipRule="evenodd" />
+              </svg>
+              <h3 style={{ margin: 0, fontSize: 20, color: "var(--vl-text)", fontFamily: "'Cormorant Garamond', serif" }}>AI Insights</h3>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
                 riskCounts.HIGH > 0 ? `${riskCounts.HIGH} document${riskCounts.HIGH !== 1 ? "s" : ""} contain high-risk clauses requiring immediate attention.` : "No high-risk documents detected — your portfolio is in good standing.",
                 avgRisky > 3 ? `Average of ${avgRisky} risky clauses per document is above the recommended threshold of 3. Consider stricter contract review processes.` : `Average of ${avgRisky} risky clauses per document is within acceptable range.`,
                 clauseFreq.length > 0 ? `"${clauseFreq[0].name}" is the most frequently flagged clause type, appearing ${clauseFreq[0].count} time${clauseFreq[0].count !== 1 ? "s" : ""}.` : "No recurring clause patterns detected yet.",
               ].map((insight, i) => (
-                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="var(--vl-ochre)" style={{ flexShrink: 0, marginTop: 2 }}>
-                    <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm.93-9.412l-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 110-2 1 1 0 010 2z" clipRule="evenodd" />
-                  </svg>
-                  <span style={{ fontSize: 13, color: "var(--vl-text2)", lineHeight: 1.6 }}>{insight}</span>
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", background:"rgba(15,23,42,0.4)", padding:"16px", borderRadius:12, border:"1px solid var(--vl-border)" }}>
+                  <span style={{ fontSize: 14, color: "var(--vl-text2)", lineHeight: 1.6, fontFamily:"'Inter',sans-serif" }}>{insight}</span>
                 </div>
               ))}
             </div>

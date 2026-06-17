@@ -1,31 +1,33 @@
 /* ── Google Fonts ──────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 /* ── Tailwind directives ────────────────────────────────────────────────────── */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── CSS Design Tokens ─────────────────────────────────────────────────────── */
+/* ── CSS Design Tokens (Premium Legal Navy & Gold) ────────────────────────── */
 :root {
-  --vl-bg:        #050505;
-  --vl-bg2:       #111111;
-  --vl-card:      #141414;
-  --vl-card2:     #1A1A1A;
-  --vl-border:    #2A2A2A;
-  --vl-border2:   #3A3A3A;
-  --vl-ochre:     #E0C39A;
-  --vl-ochre2:    #F2DDBA;
+  --vl-bg:        #070A10;
+  --vl-bg2:       #0D131F;
+  --vl-card:      rgba(15, 23, 42, 0.6);
+  --vl-card2:     rgba(30, 41, 59, 0.5);
+  --vl-card-solid:#0F172A;
+  --vl-border:    rgba(255, 255, 255, 0.08);
+  --vl-border2:   rgba(255, 255, 255, 0.15);
+  --vl-border-gold: rgba(212, 175, 55, 0.25);
+  --vl-ochre:     #D4AF37; /* Metallic Gold */
+  --vl-ochre2:    #E5C07B; /* Lighter Gold */
   --vl-ochre3:    #FFF2DF;
-  --vl-text:      #FFFFFF;
-  --vl-text2:     #D6C7B8;
-  --vl-muted:     #888888;
-  --vl-muted2:    #555555;
-  --vl-success:   #4CAF50;
-  --vl-warning:   #F59E0B;
-  --vl-risk:      #EF4444;
-  --vl-info:      #3B82F6;
-  --sidebar-w:    252px;
+  --vl-text:      #F8FAFC;
+  --vl-text2:     #E2E8F0;
+  --vl-muted:     #94A3B8;
+  --vl-muted2:    #64748B;
+  --vl-success:   #34D399;
+  --vl-warning:   #FBBF24;
+  --vl-risk:      #F87171;
+  --vl-info:      #60A5FA;
+  --sidebar-w:    260px;
 }
 
 /* ── Base resets ─────────────────────────────────────────────────────────────*/
@@ -40,11 +42,11 @@
   }
 
   body {
-    font-family: 'Montserrat', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     background-color: var(--vl-bg);
-    background-image: url('/bg_modern.png');
-    background-size: cover;
-    background-position: center;
+    /* Premium dark abstract background or gradient */
+    background-image: radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.04), transparent 50%),
+                      radial-gradient(circle at 85% 30%, rgba(30, 41, 59, 0.6), transparent 50%);
     background-attachment: fixed;
     color: var(--vl-text);
     -webkit-font-smoothing: antialiased;
@@ -69,31 +71,37 @@
 /* ── Shared Component Classes ────────────────────────────────────────────────*/
 @layer components {
 
-  /* Cards */
+  /* Glassmorphism Cards */
   .vl-card {
     background: var(--vl-card);
     border: 1px solid var(--vl-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 16px;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .vl-card:hover {
+    background: var(--vl-card2);
     border-color: var(--vl-border2);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255,255,255,0.02) inset;
   }
 
   .vl-card-elevated {
     background: var(--vl-card);
     border: 1px solid var(--vl-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .vl-card-elevated:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-    border-color: var(--vl-border2);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--vl-border-gold) inset;
+    border-color: var(--vl-border-gold);
   }
 
   /* Buttons */
@@ -103,29 +111,32 @@
     justify-content: center;
     gap: 8px;
     padding: 12px 24px;
-    background: var(--vl-ochre);
+    background: linear-gradient(135deg, var(--vl-ochre2), var(--vl-ochre));
     color: #000000;
     border: none;
-    border-radius: 9999px; /* Pill shape like screenshot */
-    font-size: 11px;
+    border-radius: 9999px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     font-family: 'Montserrat', sans-serif;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .vl-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(224,195,154,0.3);
-    background: var(--vl-ochre2);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
+    filter: brightness(1.1);
   }
 
   .vl-btn-primary:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+    filter: none;
+    box-shadow: none;
   }
 
   .vl-btn-ghost {
@@ -134,9 +145,9 @@
     justify-content: center;
     gap: 8px;
     padding: 10px 20px;
-    background: transparent;
+    background: rgba(212, 175, 55, 0.05);
     color: var(--vl-ochre);
-    border: 1px solid var(--vl-ochre);
+    border: 1px solid var(--vl-border-gold);
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 600;
@@ -144,111 +155,106 @@
     text-transform: uppercase;
     font-family: 'Montserrat', sans-serif;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .vl-btn-ghost:hover {
-    background: var(--vl-ochre);
-    color: #000000;
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--vl-ochre);
     transform: translateY(-2px);
   }
 
-  /* Risk badges - correct contrast per level */
+  /* Badges */
   .vl-badge {
     display: inline-flex;
     align-items: center;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+    backdrop-filter: blur(4px);
   }
 
   .vl-badge-low {
-    background: rgba(76,175,80,0.12);
-    color: #4CAF50;
-    border: 1px solid rgba(76,175,80,0.3);
+    background: rgba(52, 211, 153, 0.1);
+    color: var(--vl-success);
+    border: 1px solid rgba(52, 211, 153, 0.25);
   }
 
   .vl-badge-medium {
-    background: rgba(245,158,11,0.12);
-    color: #F59E0B;
-    border: 1px solid rgba(245,158,11,0.3);
+    background: rgba(251, 191, 36, 0.1);
+    color: var(--vl-warning);
+    border: 1px solid rgba(251, 191, 36, 0.25);
   }
 
   .vl-badge-high {
-    background: rgba(239,68,68,0.12);
-    color: #EF4444;
-    border: 1px solid rgba(239,68,68,0.3);
+    background: rgba(248, 113, 113, 0.1);
+    color: var(--vl-risk);
+    border: 1px solid rgba(248, 113, 113, 0.25);
   }
 
   .vl-badge-ochre {
-    background: rgba(212,164,74,0.12);
+    background: rgba(212, 175, 55, 0.1);
     color: var(--vl-ochre);
-    border: 1px solid rgba(212,164,74,0.25);
+    border: 1px solid var(--vl-border-gold);
   }
 
   /* Section label */
   .vl-section-label {
+    font-family: 'Montserrat', sans-serif;
     font-size: 11px;
     font-weight: 700;
     color: var(--vl-muted);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
   }
 
   /* Input */
   .vl-input {
     width: 100%;
-    padding: 10px 14px;
-    background: var(--vl-bg2);
+    padding: 12px 16px;
+    background: var(--vl-card);
     border: 1px solid var(--vl-border);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--vl-text);
     font-size: 14px;
     font-family: 'Inter', sans-serif;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
   }
 
   .vl-input:focus {
     border-color: var(--vl-ochre);
-    box-shadow: 0 0 0 3px rgba(212,164,74,0.12);
+    background: var(--vl-card2);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
   }
 
   /* Skeleton loader */
   .vl-skeleton {
     background: linear-gradient(
       90deg,
-      var(--vl-card2) 25%,
-      var(--vl-border) 50%,
-      var(--vl-card2) 75%
+      var(--vl-card) 25%,
+      rgba(255,255,255,0.05) 50%,
+      var(--vl-card) 75%
     );
     background-size: 800px 100%;
-    animation: shimmer 1.8s ease-in-out infinite;
-    border-radius: 6px;
-  }
-
-  /* Divider */
-  .vl-divider {
-    height: 1px;
-    background: var(--vl-border);
-    width: 100%;
+    animation: shimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    border-radius: 8px;
   }
 
   /* Page container */
   .vl-page {
     margin-left: var(--sidebar-w);
-    padding: 36px 40px 72px;
+    padding: 48px 56px 80px;
     min-height: 100vh;
     flex: 1;
     min-width: 0;
     width: 0;
-    background: rgba(5, 5, 5, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: transparent; /* Let body gradient show through */
   }
 
   /* Page header */
@@ -256,7 +262,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 36px;
+    margin-bottom: 48px;
   }
 }
 
@@ -264,18 +270,23 @@
 @layer utilities {
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
   }
 
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
+  @keyframes fadeLeft {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
   }
 
   @keyframes modalIn {
-    from { opacity: 0; transform: translateY(24px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(8px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
 
   @keyframes spin {
@@ -288,28 +299,35 @@
   }
 
   @keyframes pulseOchre {
-    0%, 100% { box-shadow: 0 0 8px rgba(212,164,74,0.2); }
-    50%       { box-shadow: 0 0 24px rgba(212,164,74,0.5); }
+    0%, 100% { box-shadow: 0 0 12px rgba(212, 175, 55, 0.1); }
+    50%       { box-shadow: 0 0 24px rgba(212, 175, 55, 0.3); }
   }
 
-  @keyframes donutReveal {
-    from { stroke-dasharray: 0 283; }
-  }
+  .fade-up        { animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .fade-left      { animation: fadeLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .scale-in       { animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .animate-shimmer { animation: shimmer 2s infinite; }
 
-  @keyframes barGrow {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
-  }
+  /* Delay utilities */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
 
-  .fade-up        { animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both; }
-  .slide-in       { animation: slideIn 0.3s cubic-bezier(0.22,1,0.36,1) both; }
-  .animate-shimmer { animation: shimmer 1.8s ease-in-out infinite; }
+  /* Glass utility */
+  .glass-panel {
+    background: var(--vl-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--vl-border);
+  }
 
   /* Scrollbar */
-  ::-webkit-scrollbar       { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--vl-bg); }
-  ::-webkit-scrollbar-thumb { background: var(--vl-border); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--vl-border2); }
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--vl-border2); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--vl-muted2); }
 
   /* Focus rings */
   :focus-visible {

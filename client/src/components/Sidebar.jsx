@@ -51,12 +51,12 @@ function getInitials(name) {
 export default function Sidebar({ activePage, setActivePage }) {
   const [hoveredId, setHoveredId] = useState(null);
   const [profileName, setProfileName] = useState("Rishit Chaudhary");
-  const [profileRole, setProfileRole] = useState("Legal Analyst");
+  const [profileRole, setProfileRole] = useState("Senior Partner");
 
   useEffect(() => {
     const load = () => {
       setProfileName(localStorage.getItem("profile_name") || "Rishit Chaudhary");
-      setProfileRole(localStorage.getItem("profile_role") || "Legal Analyst");
+      setProfileRole(localStorage.getItem("profile_role") || "Senior Partner");
     };
     load();
     window.addEventListener("profileUpdated", load);
@@ -72,113 +72,120 @@ export default function Sidebar({ activePage, setActivePage }) {
           position: relative;
           display: flex;
           align-items: center;
-          gap: 11px;
-          padding: 12px 14px;
-          margin-bottom: 3px;
-          border-radius: 0;
+          gap: 12px;
+          padding: 12px 16px;
+          margin-bottom: 4px;
+          border-radius: 8px;
           text-decoration: none;
-          font-size: 10px;
-          font-weight: 500;
+          font-size: 11px;
+          font-weight: 600;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           font-family: 'Montserrat', sans-serif;
-          transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+          transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
           cursor: pointer;
           color: var(--vl-muted);
+          border: 1px solid transparent;
         }
         .sidebar-nav-item:hover {
           color: var(--vl-text);
-          transform: translateX(3px);
+          background: rgba(255,255,255,0.03);
+          border-color: rgba(255,255,255,0.05);
+          transform: translateX(4px);
         }
         .sidebar-nav-item.active {
           color: var(--vl-ochre) !important;
-        }
-        .sidebar-nav-item.active:hover {
-          transform: translateX(0);
+          background: rgba(212, 175, 55, 0.05);
+          border-color: var(--vl-border-gold);
+          box-shadow: 0 4px 12px rgba(212,175,55,0.05);
         }
         .sidebar-user-card {
           display: flex;
           align-items: center;
-          gap: 11px;
-          padding: 12px 14px;
-          border-radius: 8px;
-          background: transparent;
+          gap: 12px;
+          padding: 14px 16px;
+          border-radius: 12px;
+          background: var(--vl-card);
           border: 1px solid var(--vl-border);
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s ease;
         }
         .sidebar-user-card:hover {
           background: var(--vl-card2);
-          border-color: var(--vl-border2);
-        }
-        @keyframes statusPulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.4; }
+          border-color: var(--vl-border-gold);
+          box-shadow: 0 4px 12px rgba(212,175,55,0.1);
         }
       `}</style>
 
       <aside style={{
         position: "fixed", left: 0, top: 0,
         width: "var(--sidebar-w)", height: "100vh",
-        background: "var(--vl-bg)",
+        background: "rgba(11, 15, 25, 0.8)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
         borderRight: "1px solid var(--vl-border)",
         display: "flex", flexDirection: "column",
         zIndex: 100,
-        boxShadow: "4px 0 32px rgba(0,0,0,0.6)",
       }}>
 
         {/* ── Logo ─────────────────────────────────────────────── */}
-        <div style={{ padding: "36px 20px 20px", borderBottom: "1px solid var(--vl-border)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 0, justifyContent: "center" }}>
+        <div style={{ padding: "40px 24px 24px", borderBottom: "1px solid var(--vl-border)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 0, justifyContent: "center", marginBottom: 12 }}>
             <h1 style={{
-              margin: 0, fontSize: 24, fontWeight: 400,
+              margin: 0, fontSize: 26, fontWeight: 400,
               fontFamily: "'Cormorant Garamond', serif",
               color: "var(--vl-text)",
               letterSpacing: "0.02em",
             }}>Veri</h1>
             <h1 style={{
-              margin: 0, fontSize: 22, fontWeight: 300,
+              margin: 0, fontSize: 24, fontWeight: 300,
               fontFamily: "'Montserrat', sans-serif",
               color: "var(--vl-ochre)",
               letterSpacing: "0.05em",
             }}>Lex</h1>
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 8 }}>
+          <div style={{ textAlign: "center" }}>
             <p style={{
-              margin: 0, fontSize: 8, color: "var(--vl-muted)",
-              letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 400,
+              margin: 0, fontSize: 9, color: "var(--vl-muted)",
+              letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 500, fontFamily:"'Inter', sans-serif"
             }}>Legal Intelligence</p>
           </div>
 
           {/* Live indicator */}
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            marginTop: 14, background: "rgba(76,175,80,0.1)",
-            border: "1px solid rgba(76,175,80,0.25)",
-            borderRadius: 99, padding: "3px 10px",
+            display: "flex", justifyContent:"center",
+            marginTop: 20
           }}>
-            <span style={{
-              width: 6, height: 6, borderRadius: "50%", background: "#4CAF50",
-              animation: "statusPulse 2s ease-in-out infinite",
-              display: "inline-block",
-            }} />
-            <span style={{ fontSize: 10, fontWeight: 600, color: "#4CAF50", letterSpacing: "0.06em" }}>
-              AI System Active
-            </span>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: "rgba(52, 211, 153, 0.1)",
+              border: "1px solid rgba(52, 211, 153, 0.2)",
+              borderRadius: 99, padding: "4px 12px",
+            }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: "50%", background: "var(--vl-success)",
+                animation: "pulseOchre 2s ease-in-out infinite",
+                display: "inline-block",
+                boxShadow: "0 0 8px var(--vl-success)"
+              }} />
+              <span style={{ fontSize: 10, fontWeight: 600, color: "var(--vl-success)", letterSpacing: "0.08em", fontFamily:"'Inter',sans-serif", textTransform:"uppercase" }}>
+                AI Core Online
+              </span>
+            </div>
           </div>
         </div>
 
         {/* ── Section label ─────────────────────────────────────── */}
-        <div style={{ padding: "18px 20px 6px" }}>
+        <div style={{ padding: "24px 24px 8px" }}>
           <span style={{
-            fontSize: 10, fontWeight: 700, color: "#5A4636",
-            letterSpacing: "0.14em", textTransform: "uppercase",
+            fontSize: 10, fontWeight: 700, color: "var(--vl-muted2)",
+            letterSpacing: "0.2em", textTransform: "uppercase", fontFamily:"'Montserrat', sans-serif"
           }}>Navigation</span>
         </div>
 
         {/* ── Nav links ─────────────────────────────────────────── */}
-        <nav style={{ flex: 1, padding: "4px 10px", overflowY: "auto" }}>
+        <nav style={{ flex: 1, padding: "8px 16px", overflowY: "auto" }}>
           {navLinks.map((link) => {
             const isActive = activePage === link.id;
             const isHovered = hoveredId === link.id;
@@ -191,14 +198,15 @@ export default function Sidebar({ activePage, setActivePage }) {
                 onMouseEnter={() => setHoveredId(link.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <span style={{ opacity: isActive ? 1 : isHovered ? 0.9 : 0.65, flexShrink: 0 }}>
+                <span style={{ opacity: isActive ? 1 : isHovered ? 0.9 : 0.65, flexShrink: 0, transition:"all 0.2s" }}>
                   {link.icon}
                 </span>
                 <span style={{ flex: 1 }}>{link.label}</span>
                 {isActive && (
                   <span style={{
                     width: 6, height: 6, borderRadius: "50%",
-                    background: "#1A1410", opacity: 0.6,
+                    background: "var(--vl-ochre)",
+                    boxShadow: "0 0 8px var(--vl-ochre)",
                     flexShrink: 0,
                   }} />
                 )}
@@ -208,29 +216,30 @@ export default function Sidebar({ activePage, setActivePage }) {
         </nav>
 
         {/* ── Divider ───────────────────────────────────────────── */}
-        <div style={{ height: 1, margin: "0 14px", background: "var(--vl-border)" }} />
+        <div style={{ height: 1, margin: "0 24px", background: "var(--vl-border)" }} />
 
         {/* ── User profile card ─────────────────────────────────── */}
-        <div style={{ padding: "14px 10px 16px" }}>
+        <div style={{ padding: "20px 16px 24px" }}>
           <div
             className="sidebar-user-card"
             onClick={() => setActivePage("settings")}
           >
             <div style={{
-              width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-              background: "var(--vl-ochre)",
+              width: 36, height: 36, borderRadius: "10px", flexShrink: 0,
+              background: "linear-gradient(135deg, var(--vl-ochre2), var(--vl-ochre))",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 12, fontWeight: 600, color: "#000000", fontFamily: "'Montserrat', sans-serif"
+              fontSize: 13, fontWeight: 700, color: "#000", fontFamily: "'Montserrat', sans-serif",
+              boxShadow: "0 4px 12px rgba(212,175,55,0.3)"
             }}>{initials}</div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{
-                fontSize: 12, fontWeight: 500, color: "var(--vl-text)",
+                fontSize: 13, fontWeight: 600, color: "var(--vl-text)",
                 lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                fontFamily: "'Montserrat', sans-serif"
+                fontFamily: "'Inter', sans-serif"
               }}>{profileName}</div>
-              <div style={{ fontSize: 10, color: "var(--vl-muted)", fontFamily: "'Montserrat', sans-serif" }}>{profileRole}</div>
+              <div style={{ fontSize: 11, color: "var(--vl-ochre2)", fontFamily: "'Inter', sans-serif", marginTop:2 }}>{profileRole}</div>
             </div>
-            <svg width="13" height="13" viewBox="0 0 20 20" fill="var(--vl-muted)" style={{ flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--vl-muted)" style={{ flexShrink: 0 }}>
               <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
             </svg>
           </div>
