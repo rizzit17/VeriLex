@@ -9,8 +9,10 @@ import { addHistoryEntry, getAllHistory } from "../utils/history.js";
 
 // ── Worker setup ──────────────────────────────────────────────────────────────
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const workerPath = join(__dirname, "../node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs");
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const workerPath = require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
 GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
 
 const router = Router();

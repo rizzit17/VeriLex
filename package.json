@@ -1,19 +1,22 @@
 {
   "name": "ai-legal-analyzer",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "server/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd client && npm install && npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@google/genai": "^1.41.0",
+    "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "groq-sdk": "^1.1.2",
     "multer": "^2.0.2",
-    "pdf-parse": "^2.4.5"
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.4.624"
   }
 }
