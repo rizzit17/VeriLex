@@ -1,4 +1,4 @@
-# ⚖️ VeriLex - AI-Powered Legal Document Analyzer
+# VeriLex - AI-Powered Legal Document Analyzer
 
 <div align="center">
 
@@ -16,11 +16,11 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 <h3>
-  <a href="https://veri-lex.vercel.app/">🌐 Live Demo</a>
+  <a href="https://veri-lex.vercel.app/">Live Demo</a>
   <span> | </span>
-  <a href="#-features">✨ Features</a>
+  <a href="#-features">Features</a>
   <span> | </span>
-  <a href="#-getting-started">🚀 Getting Started</a>
+  <a href="#-getting-started">Getting Started</a>
 </h3>
 
 *An intelligent platform for legal professionals to analyze contracts, assess risks, and ensure compliance using advanced AI.*
@@ -29,32 +29,32 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 **VeriLex** is a sophisticated legal-tech application that leverages Google's **Gemini AI** to analyze legal documents (PDFs) in real-time. Designed with a premium aesthetic inspired by law libraries and executive boardrooms, it offers instant insights into contracts, identifying varying levels of risk, key obligations, and missing clauses.
 
 The application features a modern, responsive dashboard with a dual-theme interface (Dark/Light) that maintains a professional "Legal Gold" identity across both modes.
 
-## ✨ Features
+## Features
 
-### 🧠 **AI-Powered Analysis**
+### **AI-Powered Analysis**
 *   **Instant Risk Assessment**: Categorizes clauses into High, Medium, and Low risk.
 *   **Clause Identification**: Automatically detects and labels standard legal clauses (Indemnification, Termination, Liability, etc.).
 *   **Summary Generation**: Creates concise executive summaries of complex documents.
 *   **Compliance Check**: Identifies missing standard clauses and potential loopholes.
 
-### 🎨 **Premium User Experience**
+### **Premium User Experience**
 *   **Sophisticated UI**: "Legal Gold" and "Deep Espresso" color palette for an authoritative feel.
 *   **Interactive Dashboard**: Real-time stats, activity feeds, and risk distribution charts.
 *   **Theme Support**: Toggle between a rich **Dark Mode** and a parchment-inspired **Light Mode**.
 *   **Responsive Design**: Fully optimized for desktop and tablet viewing.
 
-### 🛠️ **Technical Highlights**
+### **Technical Highlights**
 *   **Secure Uploads**: Multer-based memory storage for secure and fast file processing.
 *   **Real-time Feedback**: Loading states, skeletal screens, and toast notifications.
 *   **History Tracking**: session-based history of analyzed documents.
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 ### **Frontend**
 *   **Framework**: React (v19) with Vite
@@ -73,7 +73,7 @@ The application features a modern, responsive dashboard with a dual-theme interf
 *   **Frontend**: Vercel (CD from GitHub)
 *   **Backend**: Railway (Continuous Deployment)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 *   Node.js (v18+)
@@ -124,13 +124,13 @@ The application features a modern, responsive dashboard with a dual-theme interf
 
 3.  Access the app at `http://localhost:5173`
 
-## 📸 Screenshots
+## Screenshots
 
 | Dashboard (Dark Mode) | Analysis Result |
 |:---:|:---:|
 | <div style="width: 400px; height: 250px; background: #1a1410; display: flex; align-items: center; justify-content: center; color: #d4a574; border: 1px solid #4a3728;">Add Screenshot Here</div> | <div style="width: 400px; height: 250px; background: #faf7f2; display: flex; align-items: center; justify-content: center; color: #6b5d52; border: 1px solid #c4b59a;">Add Screenshot Here</div> |
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -140,7 +140,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4.  Push to the branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
